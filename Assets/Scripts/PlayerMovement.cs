@@ -114,7 +114,7 @@ public class PlayerMovement : MonoBehaviour
                     var go = new GameObject("GameState");
                     go.AddComponent<GameState>();
                 }
-                GameState.Instance.collectedLettersSnapshot = li.collected.ToString();
+                GameState.Instance.collectedLettersSnapshot = li.GetCollectedLetters();
             }
 
             SceneManager.LoadScene(ExitSceneName);

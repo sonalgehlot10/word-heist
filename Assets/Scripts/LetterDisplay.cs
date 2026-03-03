@@ -5,32 +5,29 @@ public class LetterDisplay : MonoBehaviour
 {
     [SerializeField] private TMP_Text letterText;
     [SerializeField] private char letter = 'A';
+    [SerializeField] private int checkpointIndex;   // NEW
 
     void Start()
     {
-        UpdateLetter();
-    }
-
-#if UNITY_EDITOR
-    void OnValidate()
-    {
-        UpdateLetter();
-    }
-#endif
-
-    void UpdateLetter()
-    {
-        if (letterText != null)
-            letterText.text = char.ToUpper(letter).ToString();
+        letterText.text = letter.ToString();
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Collected: " + letter);
+    if (other.CompareTag("Player"))
+    {
+        Debug.Log("Inventory instance: " + CollectedLettersInventory.Instance);
 
-            Destroy(gameObject);
+        if (CollectedLettersInventory.Instance != null)
+        {
+            CollectedLettersInventory.Instance.AddLetter(letter, checkpointIndex);
         }
+        else
+        {
+            Debug.LogError("CollectedLettersInventory.Instance is NULL!");
+        }
+
+        Destroy(gameObject);
+    }
     }
 }
