@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
@@ -21,6 +22,10 @@ public class PlayerMovement : MonoBehaviour
     public GameObject winText;
     public string ExitSceneName = "ExitScene";
 
+    // ---- External launch override (for trampoline etc.) ----
+    private bool externalLaunchActive = false;
+    private float externalLaunchEndTime = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -29,13 +34,23 @@ public class PlayerMovement : MonoBehaviour
             respawnPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
+    // Call this when something (like trampoline) launches the player.
+    // During the lock window, normal movement/jump code won't overwrite velocity.
+    public void ApplyExternalLaunch(Vector2 newVelocity, float lockDuration)
+    {
+        rb.linearVelocity = newVelocity;
+        externalLaunchActive = true;
+        externalLaunchEndTime = Time.time + lockDuration;
+    }
+
     void Update()
     {
         if (levelComplete) return;
 
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        // If we are being launched by trampoline etc., ignore normal jump
+        if (!externalLaunchActive && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
@@ -44,6 +59,19 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         if (levelComplete) return;
+
+        // While external launch is active, do NOT overwrite velocity.
+        if (externalLaunchActive)
+        {
+            if (Time.time >= externalLaunchEndTime)
+            {
+                externalLaunchActive = false;
+            }
+            else
+            {
+                return;
+            }
+        }
 
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
     }
