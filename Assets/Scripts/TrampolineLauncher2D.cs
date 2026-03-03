@@ -3,20 +3,30 @@ using UnityEngine;
 // Attach this to the SAME object that has the TRIGGER collider (TrampolineTrigger).
 public class TrampolineLauncher2D : MonoBehaviour
 {
+    [Header("Center Snap")]
+    public bool snapPlayerToCenter = true;
+
+    [Tooltip("How fast to pull player to center (higher = faster).")]
+    public float snapSpeed = 25f;
+
+    [Tooltip("Stop snapping when player is this close to center (in units).")]
+    public float snapDeadZone = 0.02f;
+
+    [Tooltip("Optional: freeze horizontal velocity while snapping.")]
+    public bool zeroPlayerXVelocityWhileSnapping = true;
+
+    [Tooltip("If empty, we will auto-use the Collider2D on this object.")]
+    public Collider2D triggerCollider;
+
     [Header("Direction Meter")]
     public float minAngleDeg = 30f;
     public float maxAngleDeg = 150f;
     public float oscillationSpeed = 0.6f;
 
     [Header("Launch")]
-    public float launchSpeed = 18f;
+    public float launchSpeed = 14f;
     public float movementLockDuration = 0.20f;
-
-    [Tooltip("Minimum time between trampoline launches.")]
     public float launchCooldown = 0.35f;
-
-    [Tooltip("Require player to be grounded (standing) to launch.")]
-    public bool requireGrounded = true;
 
     [Header("Needle Visual")]
     public LineRenderer needleLine;
@@ -25,51 +35,75 @@ public class TrampolineLauncher2D : MonoBehaviour
 
     private Rigidbody2D playerRbInside;
     private PlayerMovement playerMovementInside;
-    private float currentAngleDeg;
 
+    private float currentAngleDeg;
     private float nextAllowedLaunchTime = 0f;
+
+    void Awake()
+    {
+        if (triggerCollider == null)
+        {
+            triggerCollider = GetComponent<Collider2D>();
+        }
+    }
+
+    private float GetCenterX()
+    {
+        if (triggerCollider != null)
+        {
+            return triggerCollider.bounds.center.x;
+        }
+
+        return transform.position.x;
+    }
 
     void Update()
     {
-        // 1) Animate needle
+        // Needle animation
         float t = Mathf.PingPong(Time.time * oscillationSpeed, 1f);
         currentAngleDeg = Mathf.Lerp(minAngleDeg, maxAngleDeg, t);
         UpdateNeedleVisual();
 
-        // 2) If no player, do nothing
         if (playerRbInside == null) return;
 
-        // 3) Space press -> attempt launch (with cooldown + grounded check)
+        // Launch on Space (cooldown)
         if (Input.GetKeyDown(KeyCode.Space))
         {
             TryLaunch();
         }
     }
 
+    void FixedUpdate()
+    {
+        if (!snapPlayerToCenter) return;
+        if (playerRbInside == null) return;
+
+        float centerX = GetCenterX();
+
+        // Pull player to center X smoothly
+        float px = playerRbInside.position.x;
+        float dx = centerX - px;
+
+        if (Mathf.Abs(dx) <= snapDeadZone) return;
+
+        float newX = Mathf.MoveTowards(px, centerX, snapSpeed * Time.fixedDeltaTime);
+        Vector2 newPos = new Vector2(newX, playerRbInside.position.y);
+        playerRbInside.MovePosition(newPos);
+
+        if (zeroPlayerXVelocityWhileSnapping)
+        {
+            playerRbInside.linearVelocity = new Vector2(0f, playerRbInside.linearVelocity.y);
+        }
+    }
+
     private void TryLaunch()
     {
-        // cooldown
         if (Time.time < nextAllowedLaunchTime) return;
 
-        // require grounded (prevents mid-air spam)
-        if (requireGrounded && playerMovementInside != null)
-        {
-            // PlayerMovement has isGrounded private, so we use a safe approximation:
-            // If player's vertical speed is not near zero, treat as not grounded.
-            // (If you want a perfect check, I can expose isGrounded as a public getter.)
-            if (Mathf.Abs(playerRbInside.linearVelocity.y) > 0.05f)
-            {
-                return;
-            }
-        }
-
-        // compute direction
         float rad = currentAngleDeg * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)).normalized;
-
         Vector2 launchVel = dir * launchSpeed;
 
-        // apply via PlayerMovement override (prevents FixedUpdate X overwrite)
         if (playerMovementInside != null)
         {
             playerMovementInside.ApplyExternalLaunch(launchVel, movementLockDuration);
