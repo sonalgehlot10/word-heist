@@ -1,6 +1,4 @@
 using UnityEngine;
-using TMPro;
-using UnityEngine.SceneManagement;
 using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
@@ -15,7 +13,10 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
-    public Transform respawnPoint;
+
+    // 🔥 Manual respawn position (set in inspector or updated by portals)
+    public Vector2 respawnPosition;
+
     private bool levelComplete = false;
     public GameObject winText;
     public string ExitSceneName = "ExitScene";
@@ -23,6 +24,9 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        // If respawnPosition not set in inspector, default to player's start position
+        if (respawnPosition == Vector2.zero)
+            respawnPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
     void Update()
@@ -46,19 +50,58 @@ public class PlayerMovement : MonoBehaviour
 
     void LateUpdate()
     {
-        isGrounded = Physics2D.OverlapCircle(
-            groundCheck.position,
-            groundCheckRadius,
-            groundLayer
-        );
+        if (groundCheck != null)
+        {
+            isGrounded = Physics2D.OverlapCircle(
+                groundCheck.position,
+                groundCheckRadius,
+                groundLayer
+            );
+        }
+    }
+
+    // -------------------------
+    // New minimal API for portals:
+    // Teleport player to the given 2D target (next-stage entry)
+    // and update the player's respawnPosition to that same entry point.
+    // -------------------------
+    public void TeleportToStage(Vector2 entryPosition2D)
+    {
+        Vector3 target = new Vector3(entryPosition2D.x, entryPosition2D.y, transform.position.z);
+
+        // teleport via Rigidbody2D for physics correctness
+        transform.position = target;
+        if (rb != null)
+        {
+            rb.position = target;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        // update manual respawn to the new stage entry
+        respawnPosition = entryPosition2D;
+    }
+    // -------------------------
+
+    void Respawn()
+    {
+        Vector3 newPos = new Vector3(respawnPosition.x, respawnPosition.y, transform.position.z);
+
+        transform.position = newPos;
+        if (rb != null)
+        {
+            rb.position = newPos;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Spike"))
         {
-            transform.position = respawnPoint.position;
-            rb.linearVelocity = Vector2.zero;
+            Respawn();
+            return;
         }
 
         if (other.CompareTag("Exit"))
@@ -73,25 +116,24 @@ public class PlayerMovement : MonoBehaviour
                 }
                 GameState.Instance.collectedLettersSnapshot = li.collected.ToString();
             }
-            else
-            {
-                Debug.LogWarning("LetterInventory not found when creating snapshot for exit scene.");
-            }
 
             SceneManager.LoadScene(ExitSceneName);
-            // levelComplete = true;
-            // rb.linearVelocity = Vector2.zero;
-            // rb.gravityScale = 0f;
-            // if (winText != null)
-            //     winText.SetActive(true);
+            return;
+        }
+
+        // compatibility: if a plain checkpoint object with tag "Checkpoint" exists,
+        // use its transform position as respawn (unchanged behavior)
+        if (other.CompareTag("Checkpoint"))
+        {
+            respawnPosition = new Vector2(other.transform.position.x, other.transform.position.y);
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Guard"))
         {
-            transform.position = respawnPoint.position;
-            rb.linearVelocity = Vector2.zero;
+            Respawn();
         }
     }
 }
