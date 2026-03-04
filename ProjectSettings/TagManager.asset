@@ -9,6 +9,7 @@ TagManager:
   - Exit
   - Ladder
   - LadderTop
+  - Checkpoint
   layers:
   - Default
   - TransparentFX

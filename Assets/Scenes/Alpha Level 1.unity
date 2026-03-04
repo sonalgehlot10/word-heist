@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 8326519}
   m_Layer: 0
   m_Name: Checkpoint 2
-  m_TagString: Untagged
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2024,7 +2024,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 120, y: 0}
+  m_AnchoredPosition: {x: 100, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &457457965
@@ -2184,7 +2184,7 @@ GameObject:
   - component: {fileID: 532825531}
   m_Layer: 0
   m_Name: Checkpoint 3
-  m_TagString: Untagged
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2452,7 +2452,7 @@ GameObject:
   - component: {fileID: 641791806}
   - component: {fileID: 641791805}
   m_Layer: 0
-  m_Name: CollctedLettersInventory
+  m_Name: CollectedLettersInventory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2727,6 +2727,10 @@ PrefabInstance:
       propertyPath: letter
       value: 70
       objectReference: {fileID: 0}
+    - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
+      propertyPath: checkpointIndex
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5893713575388518933, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: m_LocalPosition.x
       value: -13.5
@@ -2855,6 +2859,10 @@ PrefabInstance:
     - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: letter
       value: 82
+      objectReference: {fileID: 0}
+    - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
+      propertyPath: checkpointIndex
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5893713575388518933, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3408,6 +3416,10 @@ PrefabInstance:
       propertyPath: letter
       value: 69
       objectReference: {fileID: 0}
+    - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5893713575388518933, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: m_LocalPosition.x
       value: 10.75
@@ -3880,9 +3892,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 937198422}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -211, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 122.600006, y: -20}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &980412579
@@ -4053,7 +4065,7 @@ GameObject:
   - component: {fileID: 988906165}
   m_Layer: 0
   m_Name: Checkpoint 4
-  m_TagString: Untagged
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5716,7 +5728,7 @@ GameObject:
   - component: {fileID: 1618507628}
   m_Layer: 0
   m_Name: Checkpoint 1
-  m_TagString: Untagged
+  m_TagString: Checkpoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5988,6 +6000,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2912456495113847786, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3359728441387516551, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: respawnPosition.x
       value: -13.57
@@ -7238,6 +7254,10 @@ PrefabInstance:
     - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: letter
       value: 73
+      objectReference: {fileID: 0}
+    - target: {fileID: 2867817094857490474, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
+      propertyPath: checkpointIndex
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5893713575388518933, guid: 77af5c515cb4a44a0bd65e2e82c4c1be, type: 3}
       propertyPath: m_LocalPosition.x
