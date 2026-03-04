@@ -4951,7 +4951,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 9
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5039,10 +5039,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFollow
   player: {fileID: 1772548705}
-  upperThreshold: 2
+  upperThreshold: 3
   lowerThreshold: -2
+  verticalOffset: 5
   followSpeed: 5
-  minY: 0
+  minY: -8
 --- !u!1001 &1243005156
 PrefabInstance:
   m_ObjectHideFlags: 0
