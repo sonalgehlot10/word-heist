@@ -24,20 +24,39 @@ public class CollectedLettersInventory : MonoBehaviour
 
     public void AddLetter(char c, int checkpointIndex)
     {
-    GameObject slot = Instantiate(letterSlotPrefab, lettersContainer);
+        GameObject slot = Instantiate(letterSlotPrefab, lettersContainer);
 
-    TMP_Text text = slot.GetComponentInChildren<TMP_Text>();
-    Image background = slot.GetComponent<Image>();
+        TMP_Text text = slot.GetComponentInChildren<TMP_Text>();
+        Image background = slot.GetComponent<Image>();
 
-    char upperLetter = char.ToUpper(c);
-    text.text = upperLetter.ToString();
+        char upperLetter = char.ToUpper(c);
+        text.text = upperLetter.ToString();
 
-    int correctIndex = targetWord.IndexOf(upperLetter);
+        int correctIndex = targetWord.IndexOf(upperLetter);
 
-    if (correctIndex == checkpointIndex)
-        background.color = Color.green;
-    else
-        background.color = Color.yellow;
+        if (correctIndex == checkpointIndex)
+            background.color = Color.green;
+        else
+            background.color = Color.yellow;
+
+        collectedLetters.Add(c);
+
+        if (collectedLetters.Count >= targetWord.Length)
+        {
+            string finalString = new string(collectedLetters.ToArray());
+
+            // Store word globally
+            if (WordData.Instance == null)
+            {
+                GameObject go = new GameObject("WordData");
+                go.AddComponent<WordData>();
+            }
+
+            WordData.Instance.collectedWord = finalString;
+
+            // Load puzzle scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("WordFormationScene");
+        }
     }
 
     public void ClearLetters()

@@ -14,6 +14,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ExitScene.unity
     guid: 09587a7ff722949338141bdd7e6f909b
+  - enabled: 1
+    path: Assets/Scenes/Alpha Level 1.unity
+    guid: f0d9f15ff7d5e4859a2ae1ea6e04882f
+  - enabled: 1
+    path: Assets/Scenes/WordFormationScene.unity
+    guid: 8c15163d8e71b4a678a7826cd79cefcf
+  - enabled: 1
+    path: Assets/Scenes/VictoryScene.unity
+    guid: 4d26f21a449874efebc0f6cb8b90b7cc
+  - enabled: 1
+    path: Assets/Scenes/RetryScene.unity
+    guid: e13f88862d11c4ddf9cfc76b46d51a5f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
