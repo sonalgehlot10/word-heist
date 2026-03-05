@@ -29,7 +29,7 @@ public class PlayerFollow : MonoBehaviour
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    /*void LateUpdate()
     {
         if (!player || !cam) return;
 
@@ -52,5 +52,5 @@ public class PlayerFollow : MonoBehaviour
 
 
         transform.position = newPos;
-    }
+    }*/
 }
