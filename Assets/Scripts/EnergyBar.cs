@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class EnergyMeter : MonoBehaviour
 {
@@ -81,5 +82,6 @@ public class EnergyMeter : MonoBehaviour
     {
         Debug.Log("Energy depleted! Game Over.");
         // TODO: restart level / show UI
+        SceneManager.LoadScene("RetryScene");
     }
 }
