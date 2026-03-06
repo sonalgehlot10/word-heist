@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class LetterPickup : MonoBehaviour
 {
-    public char letter;
-
-    private TMP_Text tmp;
+    [SerializeField] private TMP_Text tmp;
+    [SerializeField] private char letter = 'A';
+    [SerializeField] private int checkpointIndex;
 
     private void Awake()
     {
@@ -26,13 +26,13 @@ public class LetterPickup : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log($"PICKUP: '{letter}'  int={(int)letter}  obj={gameObject.name}");
-        
+
         // Only the player should collect
         if (!other.CompareTag("Player")) return;
 
         // Add to inventory (UI updates)
         if (LetterInventory.Instance != null)
-            LetterInventory.Instance.AddLetter(letter);
+            LetterInventory.Instance.AddLetter(letter, checkpointIndex);
 
         // Remove letter tile from scene
         Destroy(gameObject);
