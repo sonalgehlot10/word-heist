@@ -307,7 +307,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -13, y: -216}
+  m_AnchoredPosition: {x: -148, y: -150}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &677693153
@@ -770,7 +770,7 @@ MonoBehaviour:
   slotPrefab: {fileID: 7794494744725273543, guid: 095b150cdb3654648a5e3adeef30e3e8, type: 3}
   timerText: {fileID: 677693153}
   targetWord: FIRE
-  timeRemaining: 5
+  timeRemaining: 20
 --- !u!4 &1356897628
 Transform:
   m_ObjectHideFlags: 0
