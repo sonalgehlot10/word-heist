@@ -15,8 +15,9 @@ public class PlayerMovement : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
 
-    // 🔥 Manual respawn position (set in inspector or updated by portals)
+    // Manual respawn position (set in inspector or updated by portals)
     public Vector2 respawnPosition;
+    private GoogleFormAnalytics gfAnalytics;
 
     private bool levelComplete = false;
     public GameObject winText;
@@ -25,6 +26,11 @@ public class PlayerMovement : MonoBehaviour
     // ---- External launch override (for trampoline etc.) ----
     private bool externalLaunchActive = false;
     private float externalLaunchEndTime = 0f;
+
+    void Awake()
+    {
+        gfAnalytics = FindObjectOfType<GoogleFormAnalytics>();
+    }
 
     void Start()
     {
@@ -128,6 +134,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.CompareTag("Spike"))
         {
+            gfAnalytics.LogEvent("Death/Respawn", "Hit Spike");
             Respawn();
             return;
         }
@@ -161,6 +168,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Guard"))
         {
+            gfAnalytics.LogEvent("Death/Respawn", "Caught by Guard");
             Respawn();
         }
     }

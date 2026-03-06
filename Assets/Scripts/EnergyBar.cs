@@ -19,10 +19,12 @@ public class EnergyMeter : MonoBehaviour
     private float energy;
     private Vector2 lastPos;
     private Rigidbody2D rb;
+    private GoogleFormAnalytics gfAnalytics;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        gfAnalytics = FindObjectOfType<GoogleFormAnalytics>();
     }
 
     void Start()
@@ -80,6 +82,7 @@ public class EnergyMeter : MonoBehaviour
 
     void GameOver()
     {
+        gfAnalytics.LogEvent("Death/Respawn", "Energy Depleted");
         Debug.Log("Energy depleted! Game Over.");
         // TODO: restart level / show UI
         SceneManager.LoadScene("RetryScene");
