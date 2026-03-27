@@ -31,8 +31,11 @@ public class LetterPickup : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         // Add to inventory (UI updates)
-        if (LetterInventory.Instance != null)
-            LetterInventory.Instance.AddLetter(letter, checkpointIndex);
+        
+        if (CollectedLettersInventory.Instance != null)
+        CollectedLettersInventory.Instance.AddLetter(letter, checkpointIndex);
+        
+        
 
         // Remove letter tile from scene
         Destroy(gameObject);

@@ -40,7 +40,7 @@ public class PlayerFreezeAbility : MonoBehaviour
         if (freezeIconUI != null)
             freezeIconUI.SetActive(false);  // hide icon after using it
 
-        GuardPatrol[] guards = FindObjectsOfType<GuardPatrol>();
+        GuardPatrol[] guards = FindObjectsByType<GuardPatrol>(FindObjectsSortMode.None);
 
         foreach (GuardPatrol guard in guards)
             guard.Freeze(true);
