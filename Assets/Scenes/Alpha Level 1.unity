@@ -6173,8 +6173,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Letters:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10379,37 +10379,19 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5994069575257119589, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1772548711}
-    - targetCorrespondingSourceObject: {fileID: 5994069575257119589, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1772548713}
     - targetCorrespondingSourceObject: {fileID: 5994069575257119589, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1772548712}
+    - targetCorrespondingSourceObject: {fileID: 5994069575257119589, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1772548719}
   m_SourcePrefab: {fileID: 100100000, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
 --- !u!4 &1772548705 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
   m_PrefabInstance: {fileID: 1772548704}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1772548711
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 312690893}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2757fccca16b64eb28c69d092096d977, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnergyBar
-  energyBar: {fileID: 2070119891}
-  maxEnergy: 100
-  drainPerUnit: 0.2
-  verticalWeight: 0.4
-  minMovementThreshold: 0.01
-  axisDeadZone: 0.1
 --- !u!114 &1772548712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10438,6 +10420,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBridgeAbility
   bridgeIcon: {fileID: 1878131806}
+--- !u!114 &1772548719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 312690893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2757fccca16b64eb28c69d092096d977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnergyBar
+  energyBar: {fileID: 0}
+  maxEnergy: 100
+  drainPerUnit: 0.2
+  verticalWeight: 0.4
+  minMovementThreshold: 0.01
+  axisDeadZone: 0.1
+  blockCount: 5
+  barLocalOffset: {x: 0, y: 1.2, z: 0}
+  blockSize: {x: 0.18, y: 0.28}
+  blockSpacing: 0.05
+  healthyColor: {r: 0.2, g: 0.85, b: 0.25, a: 1}
+  warningColor: {r: 0.95, g: 0.9, b: 0.2, a: 1}
+  dangerColor: {r: 0.95, g: 0.2, b: 0.2, a: 1}
+  emptyColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.35}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.35}
 --- !u!1 &1782366400
 GameObject:
   m_ObjectHideFlags: 0
@@ -12376,8 +12385,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Abilities:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12953,7 +12962,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
-  m_FillRect: {fileID: 1350636382}
+  m_FillRect: {fileID: 0}
   m_HandleRect: {fileID: 0}
   m_Direction: 2
   m_MinValue: 0
