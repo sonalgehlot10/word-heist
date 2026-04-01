@@ -30,7 +30,8 @@ public class CollectedLettersInventory : MonoBehaviour
     public Color textColor = Color.white;
 
     private readonly List<GameObject> slotObjects = new List<GameObject>();
-    private char?[] placedLetters;
+    public char?[] placedLetters;
+    public string finalWord;
 
     private void Awake()
     {
@@ -199,7 +200,7 @@ public class CollectedLettersInventory : MonoBehaviour
         return true;
     }
 
-    private string GetCurrentWord()
+    public string GetCurrentWord()
     {
         if (placedLetters == null)
             return "";
@@ -210,6 +211,8 @@ public class CollectedLettersInventory : MonoBehaviour
         {
             chars[i] = placedLetters[i].HasValue ? placedLetters[i].Value : '_';
         }
+
+        CollectedLettersInventory.Instance.finalWord = new string(chars);
 
         return new string(chars);
     }

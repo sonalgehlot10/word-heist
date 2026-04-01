@@ -23,7 +23,7 @@ public class WordGameManager : MonoBehaviour
 
     void Start()
     {
-        string word = WordData.Instance.collectedWord;
+        string word = CollectedLettersInventory.Instance.finalWord;
 
         foreach (char c in word)
         {

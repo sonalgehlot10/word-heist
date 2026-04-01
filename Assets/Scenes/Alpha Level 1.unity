@@ -4049,8 +4049,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d119e1927ae794261a56b2eb873ab712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectedLettersInventory
+  targetWord: FIRE
+  wordFormationSceneName: WordFormationScene
   letterSlotPrefab: {fileID: 433179497397796872, guid: 14176532fb0ab4767975f2c3b52886d4, type: 3}
   lettersContainer: {fileID: 457457964}
+  emptySlotColor: {r: 0.22, g: 0.22, b: 0.22, a: 1}
+  correctSlotColor: {r: 0.33, g: 0.65, b: 0.31, a: 1}
+  presentSlotColor: {r: 0.82, g: 0.72, b: 0.25, a: 1}
+  absentSlotColor: {r: 0.42, g: 0.42, b: 0.42, a: 1}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  finalWord: 
 --- !u!4 &641791806
 Transform:
   m_ObjectHideFlags: 0
