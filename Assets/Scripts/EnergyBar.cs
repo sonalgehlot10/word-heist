@@ -243,6 +243,16 @@ public class EnergyBar : MonoBehaviour
         warningText.color = c;
     }
 
+    public void RestoreEnergy(float amount)
+    {
+        energy = Mathf.Clamp(energy + amount, 0f, maxEnergy);
+
+        if (energyBar != null)
+            energyBar.value = energy / maxEnergy;
+
+        RefreshBlockBar();
+    }
+
     void GameOver()
     {
         if (gfAnalytics != null)
