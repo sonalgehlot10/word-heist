@@ -4,7 +4,7 @@ using UnityEngine;
 public class NeedleArrowHead : MonoBehaviour
 {
     [SerializeField] private Transform arrowHead;
-    [SerializeField] private float tipOffset = 0.05f;
+    [SerializeField] private float tipOffset = 0.02f;
 
     private LineRenderer lr;
 
