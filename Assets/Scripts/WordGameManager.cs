@@ -25,6 +25,10 @@ public class WordGameManager : MonoBehaviour
     {
         string word = CollectedLettersInventory.Instance.finalWord;
 
+        // Always sync targetWord from the level's CollectedLettersInventory
+        if (CollectedLettersInventory.Instance != null)
+            targetWord = CollectedLettersInventory.Instance.targetWord;
+
         foreach (char c in word)
         {
             GameObject go = Instantiate(slotPrefab, slotsParent);
