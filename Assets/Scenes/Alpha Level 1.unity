@@ -4753,7 +4753,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &660482196
 MonoBehaviour:
@@ -4802,8 +4802,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 12
+  m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -6836,7 +6836,6 @@ RectTransform:
   m_Children:
   - {fileID: 980412578}
   - {fileID: 2024221134}
-  - {fileID: 2073721342}
   - {fileID: 1473581634}
   - {fileID: 457457964}
   m_Father: {fileID: 654570144}
@@ -6859,7 +6858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5188679, g: 0.28146136, b: 0.28146136, a: 1}
+  m_Color: {r: 0.3207547, g: 0.049928803, b: 0.049928803, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6918,8 +6917,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_AnchoredPosition: {x: -27.6, y: 1.5}
+  m_SizeDelta: {x: 20, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &938431321
 MonoBehaviour:
@@ -8588,8 +8587,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 32, y: -0.94}
-  m_SizeDelta: {x: 70, y: 70}
+  m_AnchoredPosition: {x: -1.8, y: 1.5}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1230256706
 MonoBehaviour:
@@ -11667,7 +11666,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFreezeAbility
   useKey: 116
   freezeDuration: 5
-  freezeCountText: {fileID: 660482196}
+  freezeCountText: {fileID: 2073721343}
 --- !u!114 &1772548713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11681,7 +11680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBridgeAbility
   useKey: 98
-  bridgeCountText: {fileID: 1967744560}
+  bridgeCountText: {fileID: 938431321}
 --- !u!114 &1772548719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11700,21 +11699,23 @@ MonoBehaviour:
   verticalWeight: 0.4
   minMovementThreshold: 0.01
   axisDeadZone: 0.1
+  blockCount: 5
   barLocalOffset: {x: 0, y: 0.8, z: 0}
-  barSize: {x: 0.4, y: 1.5}
+  blockSize: {x: 0.18, y: 0.28}
+  blockSpacing: 0.05
   healthyColor: {r: 0.2, g: 0.85, b: 0.25, a: 1}
   warningColor: {r: 0.95, g: 0.9, b: 0.2, a: 1}
   dangerColor: {r: 0.95, g: 0.2, b: 0.2, a: 1}
+  emptyColor: {r: 0.12, g: 0.12, b: 0.12, a: 0.9}
+  activeBorderColor: {r: 1, g: 1, b: 1, a: 0.1}
+  emptyBorderColor: {r: 1, g: 1, b: 1, a: 0.6}
+  fillInset: {x: 0.03, y: 0.03}
   backgroundColor: {r: 0, g: 0, b: 0, a: 0.35}
   warningMessage: Energy draining!
   warningTextOffset: {x: 0, y: 0.42, z: 0}
   warningFontSize: 55
   warningCharacterSize: 0.05
   flickerSpeed: 6
-  lowEnergyThreshold: 0.15
-  backgroundSortingOrder: -20
-  fillSortingOrder: -19
-  textSortingOrder: -18
 --- !u!1 &1782366400
 GameObject:
   m_ObjectHideFlags: 0
@@ -12333,8 +12334,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -27, y: -0.94}
-  m_SizeDelta: {x: 70, y: 70}
+  m_AnchoredPosition: {x: -47.3, y: 1.5}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1878131808
 MonoBehaviour:
@@ -13112,7 +13113,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1967744560
 MonoBehaviour:
@@ -13161,8 +13162,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 12
+  m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -13648,12 +13649,13 @@ RectTransform:
   m_Children:
   - {fileID: 1878131807}
   - {fileID: 938431320}
+  - {fileID: 2073721342}
   - {fileID: 1230256705}
   m_Father: {fileID: 937198422}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 657, y: -20}
+  m_AnchoredPosition: {x: 728.8, y: -20}
   m_SizeDelta: {x: 261.4892, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2024221135
@@ -14213,17 +14215,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073721341}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.35, y: 0.35, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 937198422}
+  m_Father: {fileID: 2024221134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 320, y: -3.525415}
-  m_SizeDelta: {x: 50, y: 50}
+  m_AnchoredPosition: {x: 17.000061, y: 1.5000204}
+  m_SizeDelta: {x: 20, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2073721343
 MonoBehaviour:
