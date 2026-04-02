@@ -22,10 +22,21 @@ public class EnergyBar : MonoBehaviour
     public Vector3 barLocalOffset = new Vector3(0f, 0.2f, 0f);
     public Vector2 blockSize = new Vector2(0.18f, 0.28f);
     public float blockSpacing = 0.05f;
+
     public Color healthyColor = new Color(0.20f, 0.85f, 0.25f, 1f);
     public Color warningColor = new Color(0.95f, 0.90f, 0.20f, 1f);
     public Color dangerColor = new Color(0.95f, 0.20f, 0.20f, 1f);
-    public Color emptyColor = new Color(0.20f, 0.20f, 0.20f, 0.35f);
+
+    [Tooltip("Color for empty blocks.")]
+    public Color emptyColor = new Color(0.12f, 0.12f, 0.12f, 0.9f);
+
+    [Header("Borders")]
+    public Color activeBorderColor = new Color(1f, 1f, 1f, 0.10f);
+    public Color emptyBorderColor = new Color(1f, 1f, 1f, 0.60f);
+
+    [Tooltip("How much smaller the fill is compared to the border.")]
+    public Vector2 fillInset = new Vector2(0.03f, 0.03f);
+
     public Color backgroundColor = new Color(0f, 0f, 0f, 0.35f);
 
     [Header("Warning Text")]
@@ -41,9 +52,10 @@ public class EnergyBar : MonoBehaviour
     private GoogleFormAnalytics gfAnalytics;
 
     private Transform blockBarRoot;
-    private SpriteRenderer[] blockRenderers;
-    private Sprite blockSprite;
-    private Sprite backgroundSprite;
+    private SpriteRenderer[] blockRenderers;   // inner fill
+    private SpriteRenderer[] borderRenderers;   // outer border
+
+    private Sprite whiteSprite;
 
     private TextMesh warningText;
     private float flickerTimer = 0f;
@@ -124,9 +136,9 @@ public class EnergyBar : MonoBehaviour
         blockBarRoot.localRotation = Quaternion.identity;
         blockBarRoot.localScale = Vector3.one;
 
-        blockSprite = CreateWhiteSprite();
-        backgroundSprite = blockSprite;
+        whiteSprite = CreateWhiteSprite();
 
+        // Background behind the blocks
         GameObject background = new GameObject("Background");
         background.transform.SetParent(blockBarRoot, false);
         background.transform.localPosition = Vector3.zero;
@@ -137,27 +149,51 @@ public class EnergyBar : MonoBehaviour
         );
 
         var bgRenderer = background.AddComponent<SpriteRenderer>();
-        bgRenderer.sprite = backgroundSprite;
+        bgRenderer.sprite = whiteSprite;
         bgRenderer.color = backgroundColor;
         bgRenderer.sortingOrder = 0;
 
         blockRenderers = new SpriteRenderer[blockCount];
+        borderRenderers = new SpriteRenderer[blockCount];
 
         float totalWidth = (blockCount * blockSize.x) + ((blockCount - 1) * blockSpacing);
         float startX = -totalWidth * 0.5f + (blockSize.x * 0.5f);
 
         for (int i = 0; i < blockCount; i++)
         {
-            GameObject block = new GameObject($"Block_{i + 1}");
-            block.transform.SetParent(blockBarRoot, false);
-            block.transform.localPosition = new Vector3(startX + i * (blockSize.x + blockSpacing), 0f, 0f);
-            block.transform.localScale = new Vector3(blockSize.x, blockSize.y, 1f);
+            GameObject blockRoot = new GameObject($"Block_{i + 1}");
+            blockRoot.transform.SetParent(blockBarRoot, false);
+            blockRoot.transform.localPosition = new Vector3(startX + i * (blockSize.x + blockSpacing), 0f, 0f);
+            blockRoot.transform.localRotation = Quaternion.identity;
+            blockRoot.transform.localScale = Vector3.one;
 
-            var sr = block.AddComponent<SpriteRenderer>();
-            sr.sprite = blockSprite;
-            sr.color = healthyColor;
-            sr.sortingOrder = 1;
-            blockRenderers[i] = sr;
+            // Border: same overall size for every block
+            GameObject border = new GameObject("Border");
+            border.transform.SetParent(blockRoot.transform, false);
+            border.transform.localPosition = Vector3.zero;
+            border.transform.localScale = new Vector3(blockSize.x, blockSize.y, 1f);
+
+            var borderRenderer = border.AddComponent<SpriteRenderer>();
+            borderRenderer.sprite = whiteSprite;
+            borderRenderer.color = emptyBorderColor;
+            borderRenderer.sortingOrder = 1;
+            borderRenderers[i] = borderRenderer;
+
+            // Fill: slightly smaller so the border is visible, but all blocks keep the same outer size
+            GameObject fill = new GameObject("Fill");
+            fill.transform.SetParent(blockRoot.transform, false);
+            fill.transform.localPosition = Vector3.zero;
+            fill.transform.localScale = new Vector3(
+                Mathf.Max(0.01f, blockSize.x - fillInset.x),
+                Mathf.Max(0.01f, blockSize.y - fillInset.y),
+                1f
+            );
+
+            var fillRenderer = fill.AddComponent<SpriteRenderer>();
+            fillRenderer.sprite = whiteSprite;
+            fillRenderer.color = healthyColor;
+            fillRenderer.sortingOrder = 2;
+            blockRenderers[i] = fillRenderer;
         }
 
         GameObject textObj = new GameObject("EnergyWarningText");
@@ -177,7 +213,7 @@ public class EnergyBar : MonoBehaviour
         var textRenderer = textObj.GetComponent<MeshRenderer>();
         if (textRenderer != null)
         {
-            textRenderer.sortingOrder = 2;
+            textRenderer.sortingOrder = 3;
         }
 
         warningText.gameObject.SetActive(false);
@@ -214,8 +250,18 @@ public class EnergyBar : MonoBehaviour
         for (int i = 0; i < blockRenderers.Length; i++)
         {
             bool active = i < activeBlocks;
-            blockRenderers[i].color = active ? activeColor : emptyColor;
-            blockRenderers[i].enabled = true;
+
+            if (blockRenderers[i] != null)
+            {
+                blockRenderers[i].color = active ? activeColor : emptyColor;
+                blockRenderers[i].enabled = true;
+            }
+
+            if (borderRenderers != null && i < borderRenderers.Length && borderRenderers[i] != null)
+            {
+                borderRenderers[i].color = active ? activeBorderColor : emptyBorderColor;
+                borderRenderers[i].enabled = true;
+            }
         }
 
         if (warningText != null)
