@@ -4304,7 +4304,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &461786633
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5591,7 +5591,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4278394229323144648, guid: 6dbbd50047e0546808d03ec45f17300b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.2
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4278394229323144648, guid: 6dbbd50047e0546808d03ec45f17300b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -9177,8 +9177,6 @@ GameObject:
   - component: {fileID: 1191784034}
   - component: {fileID: 1191784038}
   - component: {fileID: 1191784037}
-  - component: {fileID: 1191784036}
-  - component: {fileID: 1191784035}
   m_Layer: 0
   m_Name: LettersArea
   m_TagString: Untagged
@@ -9205,46 +9203,6 @@ RectTransform:
   m_AnchoredPosition: {x: -1070, y: -337.4}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1191784035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1191784033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
---- !u!114 &1191784036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1191784033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 10
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!114 &1191784037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13985,15 +13943,14 @@ MonoBehaviour:
   mainCamera: {fileID: 1222878768}
   checkpoint5CameraAnchor: {fileID: 464034138}
   cameraYOffset: 0
-  cameraZ: -10
+  cameraZ: -8
   checkpoint5BoardRoot: {fileID: 672580943}
   checkpoint5LettersContainer: {fileID: 1191784034}
-  checkpoint5SlotsContainer: {fileID: 461786633}
   dragLayer: {fileID: 279820954}
   draggableLetterPrefab: {fileID: 9146819723816754612, guid: 0b917566dbe4e4923b8fac870fdec121, type: 3}
-  wordSlotPrefab: {fileID: 7982643212807557624, guid: 60669db283e544886af8866a558fbea4, type: 3}
+  lettersAreaAnchoredPosition: {x: 0, y: 0}
+  tileSpacing: 10
   tileSize: {x: 60, y: 60}
-  layoutSpacing: 10
 --- !u!1 &1955402629 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3446846909917466348, guid: 151a0b26833064b57abe9081562e955b, type: 3}

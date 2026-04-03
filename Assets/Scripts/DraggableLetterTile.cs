@@ -1,78 +1,157 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class DraggableLetterTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+[RequireComponent(typeof(RectTransform))]
+public class DraggableLetterTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     public char Letter { get; private set; }
+    public bool IsLocked { get; private set; }
+    public int SlotIndex => slotIndex;
 
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
-    private Canvas rootCanvas;
-    private RectTransform dragLayerRect;
+    private Image backgroundImage;
+    private TMP_Text letterText;
 
+    private RectTransform dragLayerRect;
     private Transform homeParent;
-    private int homeSiblingIndex;
-    private CP5WordSlot currentSlot;
-    private bool droppedOnSlot;
+    private Checkpoint5Controller controller;
+
+    private int slotIndex;
+    private bool dropHandled;
+
+    [Header("Visuals")]
+    [SerializeField] private Color defaultBackground = new Color(0.82f, 0.72f, 0.25f, 1f);
+    [SerializeField] private Color correctBackground = new Color(0.35f, 0.70f, 0.35f, 1f);
+    [SerializeField] private Color lockedTextColor = Color.white;
+    [SerializeField] private Color unlockedTextColor = Color.white;
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
-        rootCanvas = GetComponentInParent<Canvas>();
-        if (rootCanvas != null)
-            rootCanvas = rootCanvas.rootCanvas;
+        backgroundImage = GetComponent<Image>();
+        letterText = GetComponentInChildren<TMP_Text>(true);
+
+        if (letterText != null)
+            letterText.raycastTarget = false;
     }
 
-    public void Init(char letter, Transform homeParent, Transform dragLayer)
+    public void Init(char letter, int initialSlotIndex, Transform homeParent, Transform dragLayer, Checkpoint5Controller controller)
     {
         Letter = char.ToUpperInvariant(letter);
+        slotIndex = initialSlotIndex;
         this.homeParent = homeParent;
-        homeSiblingIndex = transform.GetSiblingIndex();
+        this.controller = controller;
+        dragLayerRect = dragLayer as RectTransform;
 
-        if (dragLayer != null)
-            dragLayerRect = dragLayer as RectTransform;
+        if (letterText == null)
+            letterText = GetComponentInChildren<TMP_Text>(true);
 
-        TMP_Text text = GetComponentInChildren<TMP_Text>(true);
-        if (text != null)
+        if (letterText != null)
         {
-            text.text = Letter.ToString();
-            text.alignment = TextAlignmentOptions.Center;
-            text.raycastTarget = false;
+            letterText.text = Letter.ToString();
+            letterText.raycastTarget = false;
+        }
+
+        if (backgroundImage != null)
+            backgroundImage.raycastTarget = true;
+
+        SetWrongVisual();
+    }
+
+    public void SetSlotIndex(int newIndex)
+    {
+        slotIndex = Mathf.Max(0, newIndex);
+    }
+
+    public void SnapToSlot(Vector2 localPosition, Transform parent)
+    {
+        if (parent != null && transform.parent != parent)
+            transform.SetParent(parent, false);
+
+        rectTransform.anchoredPosition = localPosition;
+        rectTransform.localScale = Vector3.one;
+    }
+
+    public void SetCorrectVisual()
+    {
+        IsLocked = true;
+
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = correctBackground;
+            backgroundImage.raycastTarget = false;
+        }
+
+        if (letterText != null)
+            letterText.color = lockedTextColor;
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+    }
+
+    public void SetWrongVisual()
+    {
+        IsLocked = false;
+
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = defaultBackground;
+            backgroundImage.raycastTarget = true;
+        }
+
+        if (letterText != null)
+            letterText.color = unlockedTextColor;
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
         }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        droppedOnSlot = false;
+        dropHandled = false;
 
-        if (currentSlot != null)
-        {
-            currentSlot.ClearOccupant(this);
-            currentSlot = null;
-        }
+        if (IsLocked)
+            return;
 
-        Transform targetParent = dragLayerRect != null ? dragLayerRect : (rootCanvas != null ? rootCanvas.transform : transform.parent);
-        if (targetParent != null)
-        {
-            transform.SetParent(targetParent, true);
-            transform.SetAsLastSibling();
-        }
+        if (controller != null && !controller.CanTileMove(this))
+            return;
 
-        canvasGroup.blocksRaycasts = false;
-        canvasGroup.interactable = false;
+        if (canvasGroup != null)
+            canvasGroup.blocksRaycasts = false;
+
+        if (homeParent == null)
+            homeParent = transform.parent;
+
+        if (dragLayerRect != null)
+            transform.SetParent(dragLayerRect, true);
+
+        transform.SetAsLastSibling();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        RectTransform targetRect = dragLayerRect != null ? dragLayerRect : (rootCanvas != null ? rootCanvas.transform as RectTransform : null);
-        if (targetRect == null)
+        if (IsLocked)
             return;
 
-        Camera eventCamera = eventData.pressEventCamera;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(targetRect, eventData.position, eventCamera, out Vector2 localPoint))
+        if (dragLayerRect == null)
+            return;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                dragLayerRect,
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 localPoint))
         {
             rectTransform.anchoredPosition = localPoint;
         }
@@ -80,37 +159,56 @@ public class DraggableLetterTile : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        canvasGroup.blocksRaycasts = true;
-        canvasGroup.interactable = true;
+        if (canvasGroup != null)
+            canvasGroup.blocksRaycasts = true;
 
-        if (!droppedOnSlot && homeParent != null)
+        if (IsLocked)
+            return;
+
+        if (!dropHandled && controller != null)
+            controller.RefreshTileStates();
+        else if (!dropHandled)
+            ReturnToHomePosition();
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        if (IsLocked)
+            return;
+
+        if (eventData == null || eventData.pointerDrag == null)
+            return;
+
+        DraggableLetterTile draggedTile = eventData.pointerDrag.GetComponent<DraggableLetterTile>();
+        if (draggedTile == null || draggedTile == this)
+            return;
+
+        if (draggedTile.IsLocked || IsLocked)
+            return;
+
+        if (controller == null || draggedTile.controller != controller)
+            return;
+
+        bool swapped = controller.TrySwapTiles(this, draggedTile);
+        if (swapped)
         {
-            transform.SetParent(homeParent, false);
-            transform.SetSiblingIndex(Mathf.Clamp(homeSiblingIndex, 0, homeParent.childCount - 1));
-            rectTransform.anchoredPosition = Vector2.zero;
+            dropHandled = true;
+            draggedTile.dropHandled = true;
         }
     }
 
-    public void PlaceInSlot(CP5WordSlot slot)
+    private void ReturnToHomePosition()
     {
-        currentSlot = slot;
-        droppedOnSlot = true;
+        if (controller != null)
+        {
+            controller.RefreshTileStates();
+            return;
+        }
 
-        transform.SetParent(slot.transform, false);
+        if (homeParent == null)
+            return;
+
+        transform.SetParent(homeParent, false);
         rectTransform.anchoredPosition = Vector2.zero;
-        rectTransform.localScale = Vector3.one;
-    }
-
-    public void SendBackToHome()
-    {
-        currentSlot = null;
-        droppedOnSlot = false;
-
-        if (homeParent != null)
-        {
-            transform.SetParent(homeParent, false);
-            transform.SetSiblingIndex(Mathf.Clamp(homeSiblingIndex, 0, homeParent.childCount - 1));
-            rectTransform.anchoredPosition = Vector2.zero;
-        }
     }
 }

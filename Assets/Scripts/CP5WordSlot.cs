@@ -1,62 +1,15 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CP5WordSlot : MonoBehaviour, IDropHandler
+// Legacy placeholder so old prefabs/components do not break compilation.
+// CP5 now uses a single reorderable row of DraggableLetterTile objects.
+[RequireComponent(typeof(Image))]
+public class CP5WordSlot : MonoBehaviour
 {
-    [SerializeField] private Image background;
-
-    [Header("Colors")]
-    [SerializeField] private Color emptyColor = new Color(0.20f, 0.20f, 0.20f, 1f);
-    [SerializeField] private Color correctColor = new Color(0.33f, 0.65f, 0.31f, 1f);
-    [SerializeField] private Color wrongColor = new Color(0.42f, 0.42f, 0.42f, 1f);
-
-    private char correctLetter;
-    private DraggableLetterTile occupant;
-
     private void Awake()
     {
-        if (background == null)
-            background = GetComponent<Image>();
-    }
-
-    public void SetCorrectLetter(char letter)
-    {
-        correctLetter = char.ToUpperInvariant(letter);
-        ResetVisual();
-    }
-
-    public void OnDrop(PointerEventData eventData)
-    {
-        if (eventData.pointerDrag == null)
-            return;
-
-        DraggableLetterTile tile = eventData.pointerDrag.GetComponent<DraggableLetterTile>();
-        if (tile == null)
-            return;
-
-        if (occupant != null && occupant != tile)
-            occupant.SendBackToHome();
-
-        occupant = tile;
-        tile.PlaceInSlot(this);
-
-        if (background != null)
-            background.color = tile.Letter == correctLetter ? correctColor : wrongColor;
-    }
-
-    public void ClearOccupant(DraggableLetterTile tile)
-    {
-        if (occupant == tile)
-        {
-            occupant = null;
-            ResetVisual();
-        }
-    }
-
-    private void ResetVisual()
-    {
-        if (background != null)
-            background.color = emptyColor;
+        Image img = GetComponent<Image>();
+        if (img != null && img.color.a == 0f)
+            img.color = new Color(0.32f, 0.32f, 0.32f, 1f);
     }
 }
