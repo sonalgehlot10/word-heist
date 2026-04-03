@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,8 +29,23 @@ public class Checkpoint5Controller : MonoBehaviour
     [SerializeField] private float tileSpacing = 10f;
     [SerializeField] private Vector2 tileSize = new Vector2(60f, 60f);
 
+    [Header("Static Text UI")]
+    [SerializeField] private TMP_Text introText;
+    [SerializeField] private TMP_Text winText;
+    [SerializeField] private TMP_Text loseText;
+
+    [TextArea(2, 3)]
+    [SerializeField] private string introMessage = "Form the word to advance";
+
+    [TextArea(1, 2)]
+    [SerializeField] private string winMessage = "You won!";
+
+    [TextArea(1, 2)]
+    [SerializeField] private string loseMessage = "You lost!";
+
     private readonly List<DraggableLetterTile> tiles = new List<DraggableLetterTile>();
     private bool hasEntered;
+    private bool endStateShown;
 
     private void Awake()
     {
@@ -44,6 +60,24 @@ public class Checkpoint5Controller : MonoBehaviour
 
         if (checkpoint5BoardRoot != null)
             checkpoint5BoardRoot.SetActive(false);
+
+        if (introText != null)
+        {
+            introText.text = introMessage;
+            introText.gameObject.SetActive(false);
+        }
+
+        if (winText != null)
+        {
+            winText.text = winMessage;
+            winText.gameObject.SetActive(false);
+        }
+
+        if (loseText != null)
+        {
+            loseText.text = loseMessage;
+            loseText.gameObject.SetActive(false);
+        }
     }
 
     public void EnterCheckpoint5()
@@ -55,6 +89,7 @@ public class Checkpoint5Controller : MonoBehaviour
         }
 
         hasEntered = true;
+        endStateShown = false;
 
         DisableCameraFollowers();
         TeleportPlayerToCheckpoint5();
@@ -63,9 +98,30 @@ public class Checkpoint5Controller : MonoBehaviour
         if (checkpoint5BoardRoot != null)
             checkpoint5BoardRoot.SetActive(true);
 
+        HideResultTexts();
+        ShowIntroText();
+
         ApplyBoardLayout();
         BuildCheckpoint5Board();
         RefreshTileStates();
+    }
+
+    private void ShowIntroText()
+    {
+        if (introText == null)
+            return;
+
+        introText.text = introMessage;
+        introText.gameObject.SetActive(true);
+    }
+
+    private void HideResultTexts()
+    {
+        if (winText != null)
+            winText.gameObject.SetActive(false);
+
+        if (loseText != null)
+            loseText.gameObject.SetActive(false);
     }
 
     private void TeleportPlayerToCheckpoint5()
@@ -151,7 +207,6 @@ public class Checkpoint5Controller : MonoBehaviour
         if (string.IsNullOrEmpty(targetWord))
             return;
 
-        // Sort by current logical position.
         tiles.Sort((a, b) => a.SlotIndex.CompareTo(b.SlotIndex));
 
         for (int i = 0; i < tiles.Count; i++)
@@ -169,6 +224,9 @@ public class Checkpoint5Controller : MonoBehaviour
         }
 
         ReflowTiles();
+
+        if (!endStateShown && IsWordSolved())
+            ShowWinText();
     }
 
     public void OnTileReordered()
@@ -178,11 +236,14 @@ public class Checkpoint5Controller : MonoBehaviour
 
     public bool CanTileMove(DraggableLetterTile tile)
     {
-        return tile != null && !tile.IsLocked;
+        return !endStateShown && tile != null && !tile.IsLocked;
     }
 
     public bool TrySwapTiles(DraggableLetterTile a, DraggableLetterTile b)
     {
+        if (endStateShown)
+            return false;
+
         if (a == null || b == null)
             return false;
 
@@ -370,6 +431,29 @@ public class Checkpoint5Controller : MonoBehaviour
         return result;
     }
 
+    private bool IsWordSolved()
+    {
+        string targetWord = GetNormalizedTargetWord();
+        if (string.IsNullOrEmpty(targetWord))
+            return false;
+
+        if (tiles.Count != targetWord.Length)
+            return false;
+
+        tiles.Sort((a, b) => a.SlotIndex.CompareTo(b.SlotIndex));
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            if (tiles[i] == null)
+                return false;
+
+            if (char.ToUpperInvariant(tiles[i].Letter) != targetWord[i])
+                return false;
+        }
+
+        return true;
+    }
+
     private void MoveCameraToCheckpoint5()
     {
         if (mainCamera == null)
@@ -411,6 +495,34 @@ public class Checkpoint5Controller : MonoBehaviour
             string typeName = behaviour.GetType().Name;
             if (typeName.Contains("Follow") || typeName.Contains("Camera") || typeName.Contains("Cinemachine"))
                 behaviour.enabled = false;
+        }
+    }
+
+    public void ShowWinText()
+    {
+        if (endStateShown)
+            return;
+
+        endStateShown = true;
+
+        if (winText != null)
+        {
+            winText.text = winMessage;
+            winText.gameObject.SetActive(true);
+        }
+    }
+
+    public void ShowLoseText()
+    {
+        if (endStateShown)
+            return;
+
+        endStateShown = true;
+
+        if (loseText != null)
+        {
+            loseText.text = loseMessage;
+            loseText.gameObject.SetActive(true);
         }
     }
 
