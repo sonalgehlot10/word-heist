@@ -40,8 +40,13 @@ public class CollectedLettersInventory : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            // Sync the target word from the new level's config into the persisting instance
-            Instance.targetWord = this.targetWord;
+            // Fully reset the persisting instance with this new level's config
+            Instance.targetWord             = this.targetWord;
+            Instance.wordFormationSceneName = this.wordFormationSceneName;
+            Instance.victorySceneName       = this.victorySceneName;
+            Instance.letterSlotPrefab       = this.letterSlotPrefab;
+            Instance.lettersContainer       = this.lettersContainer;
+            Instance.ResetInventory();
             Destroy(gameObject);
             return;
         }
