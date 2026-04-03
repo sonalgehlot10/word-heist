@@ -12,10 +12,10 @@ public class CollectedLettersInventory : MonoBehaviour
     [Tooltip("Hidden target word for this level.")]
     public string targetWord = "FIRE";
 
-    [Tooltip("Scene to load when the word is fully collected if no checkpoint controller handles the transition.")]
+    [Tooltip("Scene to load when the word is fully collected.")]
     public string wordFormationSceneName = "WordFormationScene";
 
-    [Header("UI - HUD")]
+    [Header("UI")]
     [Tooltip("Prefab for one top-row letter slot. Should be a UI circle with an Image and TMP text.")]
     public GameObject letterSlotPrefab;
 
