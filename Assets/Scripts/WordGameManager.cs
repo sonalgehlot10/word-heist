@@ -1,8 +1,8 @@
-using UnityEngine;
-using TMPro;
-using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WordGameManager : MonoBehaviour
 {
@@ -14,34 +14,44 @@ public class WordGameManager : MonoBehaviour
 
     public string targetWord = "FIRE";
     public float timeRemaining = 10f;
-    private List<WordSlot> slots = new List<WordSlot>();
+    private readonly List<WordSlot> slots = new List<WordSlot>();
 
-    void Awake()
+    private void Awake()
     {
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
-        string word = CollectedLettersInventory.Instance.finalWord;
+        string word = targetWord;
+        if (CollectedLettersInventory.Instance != null && !string.IsNullOrWhiteSpace(CollectedLettersInventory.Instance.finalWord))
+            word = CollectedLettersInventory.Instance.finalWord;
 
-        foreach (char c in word)
+        if (slotsParent != null && slotPrefab != null && !string.IsNullOrEmpty(word))
         {
-            GameObject go = Instantiate(slotPrefab, slotsParent);
-            WordSlot slot = go.GetComponent<WordSlot>();
-            slot.Setup(c);
-            slots.Add(slot);
+            foreach (char c in word)
+            {
+                GameObject go = Instantiate(slotPrefab, slotsParent);
+                WordSlot slot = go.GetComponent<WordSlot>();
+                if (slot != null)
+                {
+                    slot.Setup(c);
+                    slots.Add(slot);
+                }
+            }
         }
 
         CheckWord();
         StartCoroutine(Timer());
     }
 
-    IEnumerator Timer()
+    private IEnumerator Timer()
     {
         while (timeRemaining > 0)
         {
-            timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
+            if (timerText != null)
+                timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
+
             timeRemaining -= Time.deltaTime;
             yield return null;
 
@@ -57,7 +67,10 @@ public class WordGameManager : MonoBehaviour
 
     public void CheckWord()
     {
-        for (int i = 0; i < slots.Count; i++)
+        if (slots.Count == 0)
+            return;
+
+        for (int i = 0; i < slots.Count && i < targetWord.Length; i++)
         {
             if (slots[i].GetLetter().ToString() == targetWord[i].ToString())
                 slots[i].SetGreen();
@@ -66,10 +79,13 @@ public class WordGameManager : MonoBehaviour
         }
     }
 
-    bool IsCorrect()
+    private bool IsCorrect()
     {
+        if (slots.Count == 0 || slots.Count != targetWord.Length)
+            return false;
+
         string current = "";
-        foreach (var s in slots)
+        foreach (WordSlot s in slots)
             current += s.GetLetter();
 
         return current == targetWord;

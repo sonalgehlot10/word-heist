@@ -12,17 +12,16 @@ public class WordSlot : MonoBehaviour,
     public TMP_Text letterText;
     public Outline outline;
 
-    bool draggable = true;
-    CanvasGroup canvasGroup;
+    private bool draggable = true;
+    private CanvasGroup canvasGroup;
 
-    GameObject dragTile;
-    RectTransform dragTileRect;
-    TMP_Text dragTileText;
-    Canvas rootCanvas;
+    private GameObject dragTile;
+    private RectTransform dragTileRect;
+    private Canvas rootCanvas;
 
-    string pickedLetter = "";
+    private string pickedLetter = "";
 
-    void Awake()
+    private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
 
@@ -62,12 +61,11 @@ public class WordSlot : MonoBehaviour,
         draggable = true;
     }
 
-    // ---------------- Begin Drag ----------------
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!draggable) return;
+        if (!draggable)
+            return;
 
-        // 🔹 Minimal safety guards (ignore null issues)
         if (letterText == null || background == null)
             return;
 
@@ -104,28 +102,24 @@ public class WordSlot : MonoBehaviour,
         GameObject textObj = new GameObject("TileText", typeof(RectTransform));
         textObj.transform.SetParent(dragTile.transform, false);
 
-        dragTileText = textObj.AddComponent<TMP_Text>();
-
-        // if (letterText != null)
-        // {
-        //     dragTileText.font = letterText.font;
-        //     dragTileText.fontSize = letterText.fontSize;
-        //     dragTileText.color = letterText.color;
-        //     dragTileText.alignment = letterText.alignment;
-        //     dragTileText.text = pickedLetter;
-        // }
+        TMP_Text dragText = textObj.AddComponent<TextMeshProUGUI>();
+        dragText.text = pickedLetter;
+        dragText.alignment = TextAlignmentOptions.Center;
+        dragText.enableAutoSizing = true;
+        dragText.raycastTarget = false;
 
         if (background.rectTransform != null)
             dragTileRect.sizeDelta = background.rectTransform.sizeDelta;
 
         dragTile.transform.SetAsLastSibling();
-
         UpdateDragTilePosition(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (dragTile == null) return;
+        if (dragTile == null)
+            return;
+
         UpdateDragTilePosition(eventData);
     }
 
@@ -146,18 +140,23 @@ public class WordSlot : MonoBehaviour,
         pickedLetter = "";
     }
 
-    // ---------------- Drop ----------------
     public void OnDrop(PointerEventData eventData)
     {
-        if (eventData.pointerDrag == null) return;
+        if (eventData.pointerDrag == null)
+            return;
 
         WordSlot sourceSlot = eventData.pointerDrag.GetComponent<WordSlot>();
-        if (sourceSlot == null) return;
+        if (sourceSlot == null)
+            return;
 
-        if (sourceSlot == this) return;
-        if (!this.draggable || !sourceSlot.draggable) return;
+        if (sourceSlot == this)
+            return;
 
-        if (letterText == null || sourceSlot.letterText == null) return;
+        if (!this.draggable || !sourceSlot.draggable)
+            return;
+
+        if (letterText == null || sourceSlot.letterText == null)
+            return;
 
         string sourceLetter = sourceSlot.pickedLetter;
         string targetLetter = letterText.text;
@@ -174,7 +173,6 @@ public class WordSlot : MonoBehaviour,
             WordGameManager.Instance.CheckWord();
     }
 
-    // ---------------- Highlight ----------------
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (outline != null)
@@ -187,9 +185,10 @@ public class WordSlot : MonoBehaviour,
             outline.enabled = false;
     }
 
-    void UpdateDragTilePosition(PointerEventData eventData)
+    private void UpdateDragTilePosition(PointerEventData eventData)
     {
-        if (dragTileRect == null || rootCanvas == null) return;
+        if (dragTileRect == null || rootCanvas == null)
+            return;
 
         RectTransform canvasRect = rootCanvas.transform as RectTransform;
         Vector2 localPoint;

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CollectedLettersInventory : MonoBehaviour
@@ -12,10 +11,7 @@ public class CollectedLettersInventory : MonoBehaviour
     [Tooltip("Hidden target word for this level.")]
     public string targetWord = "FIRE";
 
-    [Tooltip("Scene to load when the word is fully collected.")]
-    public string wordFormationSceneName = "WordFormationScene";
-
-    [Header("UI")]
+    [Header("UI - HUD")]
     [Tooltip("Prefab for one top-row letter slot. Should be a UI circle with an Image and TMP text.")]
     public GameObject letterSlotPrefab;
 
@@ -30,8 +26,11 @@ public class CollectedLettersInventory : MonoBehaviour
     public Color textColor = Color.white;
 
     private readonly List<GameObject> slotObjects = new List<GameObject>();
-    public char?[] placedLetters;
-    public string finalWord;
+    private char?[] placedLetters;
+    public string finalWord = "";
+    private bool checkpoint5Triggered = false;
+
+    public bool IsComplete => placedLetters != null && GetFirstEmptySlotIndex() < 0;
 
     private void Awake()
     {
@@ -58,7 +57,6 @@ public class CollectedLettersInventory : MonoBehaviour
         }
 
         string normalizedTarget = GetNormalizedTargetWord();
-
         if (string.IsNullOrEmpty(normalizedTarget))
         {
             Debug.LogWarning("CollectedLettersInventory: targetWord is empty.");
@@ -72,6 +70,8 @@ public class CollectedLettersInventory : MonoBehaviour
 
         slotObjects.Clear();
         placedLetters = new char?[normalizedTarget.Length];
+        finalWord = "";
+        checkpoint5Triggered = false;
 
         for (int i = 0; i < normalizedTarget.Length; i++)
         {
@@ -99,7 +99,6 @@ public class CollectedLettersInventory : MonoBehaviour
     public void AddLetter(char letter, int checkpointIndex = -1)
     {
         string normalizedTarget = GetNormalizedTargetWord();
-
         if (string.IsNullOrEmpty(normalizedTarget) || placedLetters == null || slotObjects.Count == 0)
             return;
 
@@ -113,18 +112,24 @@ public class CollectedLettersInventory : MonoBehaviour
         {
             int firstEmpty = GetFirstEmptySlotIndex();
             if (firstEmpty >= 0)
-            {
                 PlaceLetterAtIndex(firstEmpty, letter, normalizedTarget);
-            }
         }
 
-        if (IsComplete())
+        if (IsComplete && !checkpoint5Triggered)
         {
-            Debug.Log("Collected full word: " + GetCurrentWord());
+            checkpoint5Triggered = true;
+            finalWord = GetCurrentWord();
 
-            if (!string.IsNullOrEmpty(wordFormationSceneName))
+            Debug.Log("Collected full word: " + finalWord);
+
+            Checkpoint5Controller controller = FindFirstObjectByType<Checkpoint5Controller>();
+            if (controller != null)
             {
-                SceneManager.LoadScene(wordFormationSceneName);
+                controller.EnterCheckpoint5();
+            }
+            else
+            {
+                Debug.LogError("Checkpoint5Controller not found in scene!");
             }
         }
     }
@@ -138,7 +143,6 @@ public class CollectedLettersInventory : MonoBehaviour
         if (slot == null)
             return;
 
-        bool wasEmpty = !placedLetters[index].HasValue;
         placedLetters[index] = letter;
 
         Image bg = slot.GetComponent<Image>();
@@ -165,11 +169,6 @@ public class CollectedLettersInventory : MonoBehaviour
             else
                 bg.color = absentSlotColor;
         }
-
-        if (wasEmpty)
-        {
-            // nothing extra needed right now, but kept for clarity if you want animations later
-        }
     }
 
     private int GetFirstEmptySlotIndex()
@@ -186,35 +185,17 @@ public class CollectedLettersInventory : MonoBehaviour
         return -1;
     }
 
-    private bool IsComplete()
-    {
-        if (placedLetters == null)
-            return false;
-
-        for (int i = 0; i < placedLetters.Length; i++)
-        {
-            if (!placedLetters[i].HasValue)
-                return false;
-        }
-
-        return true;
-    }
-
     public string GetCurrentWord()
     {
         if (placedLetters == null)
             return "";
 
         char[] chars = new char[placedLetters.Length];
-
         for (int i = 0; i < placedLetters.Length; i++)
-        {
             chars[i] = placedLetters[i].HasValue ? placedLetters[i].Value : '_';
-        }
 
-        CollectedLettersInventory.Instance.finalWord = new string(chars);
-
-        return new string(chars);
+        finalWord = new string(chars);
+        return finalWord;
     }
 
     private string GetNormalizedTargetWord()
@@ -225,5 +206,21 @@ public class CollectedLettersInventory : MonoBehaviour
     public void ResetInventory()
     {
         BuildEmptySlots();
+    }
+
+    public char[] GetCollectedLettersInOrder()
+    {
+        List<char> letters = new List<char>();
+
+        if (placedLetters == null)
+            return letters.ToArray();
+
+        for (int i = 0; i < placedLetters.Length; i++)
+        {
+            if (placedLetters[i].HasValue)
+                letters.Add(char.ToUpperInvariant(placedLetters[i].Value));
+        }
+
+        return letters.ToArray();
     }
 }

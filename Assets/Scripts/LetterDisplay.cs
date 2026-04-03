@@ -5,17 +5,19 @@ public class LetterDisplay : MonoBehaviour
 {
     [SerializeField] private TMP_Text letterText;
     [SerializeField] private char letter = 'A';
-    [SerializeField] private int checkpointIndex;   // NEW
+    [SerializeField] private int checkpointIndex;
 
-    void Start()
+    private void Start()
     {
-        letterText.text = letter.ToString();
+        if (letterText != null)
+            letterText.text = letter.ToString();
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-    if (other.CompareTag("Player"))
-    {
+        if (!other.CompareTag("Player"))
+            return;
+
         Debug.Log("Inventory instance: " + CollectedLettersInventory.Instance);
 
         if (CollectedLettersInventory.Instance != null)
@@ -28,6 +30,5 @@ public class LetterDisplay : MonoBehaviour
         }
 
         Destroy(gameObject);
-    }
     }
 }
