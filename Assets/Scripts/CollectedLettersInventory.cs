@@ -37,11 +37,14 @@ public class CollectedLettersInventory : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            // Sync the target word from the new level's config into the persisting instance
+            Instance.targetWord = this.targetWord;
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
