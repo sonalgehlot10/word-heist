@@ -5425,6 +5425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectedLettersInventory
   targetWord: FIRE
+  wordFormationSceneName: WordFormationScene
   letterSlotPrefab: {fileID: 433179497397796872, guid: 14176532fb0ab4767975f2c3b52886d4, type: 3}
   lettersContainer: {fileID: 457457964}
   emptySlotColor: {r: 0.22, g: 0.22, b: 0.22, a: 1}
@@ -15025,7 +15026,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 100}
+  m_AnchoredPosition: {x: -30, y: 200}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2058018571

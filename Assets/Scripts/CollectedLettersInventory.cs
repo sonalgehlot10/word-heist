@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CollectedLettersInventory : MonoBehaviour
@@ -10,6 +11,9 @@ public class CollectedLettersInventory : MonoBehaviour
     [Header("Word Setup")]
     [Tooltip("Hidden target word for this level.")]
     public string targetWord = "FIRE";
+
+    [Tooltip("Scene to load when the word is fully collected if no checkpoint controller handles the transition.")]
+    public string wordFormationSceneName = "WordFormationScene";
 
     [Header("UI - HUD")]
     [Tooltip("Prefab for one top-row letter slot. Should be a UI circle with an Image and TMP text.")]
@@ -26,8 +30,10 @@ public class CollectedLettersInventory : MonoBehaviour
     public Color textColor = Color.white;
 
     private readonly List<GameObject> slotObjects = new List<GameObject>();
-    private char?[] placedLetters;
+
+    public char?[] placedLetters;
     public string finalWord = "";
+
     private bool checkpoint5Triggered = false;
 
     public bool IsComplete => placedLetters != null && GetFirstEmptySlotIndex() < 0;
@@ -36,15 +42,70 @@ public class CollectedLettersInventory : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Instance.SyncLevelDataFrom(this);
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
+        BuildEmptySlots();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
+    /// <summary>
+    /// Call this from a level setup script after the scene loads if you need to swap
+    /// the target word or rebind scene-specific UI references.
+    /// </summary>
+    public void ConfigureLevel(
+        string newTargetWord,
+        Transform newLettersContainer,
+        GameObject newLetterSlotPrefab,
+        string newWordFormationSceneName = null)
+    {
+        if (!string.IsNullOrWhiteSpace(newTargetWord))
+            targetWord = newTargetWord;
+
+        if (newLettersContainer != null)
+            lettersContainer = newLettersContainer;
+
+        if (newLetterSlotPrefab != null)
+            letterSlotPrefab = newLetterSlotPrefab;
+
+        if (!string.IsNullOrWhiteSpace(newWordFormationSceneName))
+            wordFormationSceneName = newWordFormationSceneName;
+
+        BuildEmptySlots();
+    }
+
+    private void SyncLevelDataFrom(CollectedLettersInventory source)
+    {
+        if (source == null)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(source.targetWord))
+            targetWord = source.targetWord;
+
+        if (source.lettersContainer != null)
+            lettersContainer = source.lettersContainer;
+
+        if (source.letterSlotPrefab != null)
+            letterSlotPrefab = source.letterSlotPrefab;
+
+        if (!string.IsNullOrWhiteSpace(source.wordFormationSceneName))
+            wordFormationSceneName = source.wordFormationSceneName;
+
         BuildEmptySlots();
     }
 
@@ -112,7 +173,9 @@ public class CollectedLettersInventory : MonoBehaviour
         {
             int firstEmpty = GetFirstEmptySlotIndex();
             if (firstEmpty >= 0)
+            {
                 PlaceLetterAtIndex(firstEmpty, letter, normalizedTarget);
+            }
         }
 
         if (IsComplete && !checkpoint5Triggered)
@@ -127,9 +190,13 @@ public class CollectedLettersInventory : MonoBehaviour
             {
                 controller.EnterCheckpoint5();
             }
+            else if (!string.IsNullOrWhiteSpace(wordFormationSceneName))
+            {
+                SceneManager.LoadScene(wordFormationSceneName);
+            }
             else
             {
-                Debug.LogError("Checkpoint5Controller not found in scene!");
+                Debug.LogError("Checkpoint5Controller not found and wordFormationSceneName is empty.");
             }
         }
     }
@@ -192,7 +259,9 @@ public class CollectedLettersInventory : MonoBehaviour
 
         char[] chars = new char[placedLetters.Length];
         for (int i = 0; i < placedLetters.Length; i++)
+        {
             chars[i] = placedLetters[i].HasValue ? placedLetters[i].Value : '_';
+        }
 
         finalWord = new string(chars);
         return finalWord;
