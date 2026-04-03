@@ -51,7 +51,10 @@ public class WordGameManager : MonoBehaviour
 
             if (IsCorrect())
             {
-                SceneManager.LoadScene("VictoryScene");
+                string victory = CollectedLettersInventory.Instance != null
+                    ? CollectedLettersInventory.Instance.victorySceneName
+                    : "VictoryScene";
+                SceneManager.LoadScene(victory);
                 yield break;
             }
         }

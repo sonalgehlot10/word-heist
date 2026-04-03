@@ -15,6 +15,9 @@ public class CollectedLettersInventory : MonoBehaviour
     [Tooltip("Scene to load when the word is fully collected.")]
     public string wordFormationSceneName = "WordFormationScene";
 
+    [Tooltip("Scene to load after the word is correctly formed. Use MainMenu for Tutorial, VictoryScene for Level 1.")]
+    public string victorySceneName = "VictoryScene";
+
     [Header("UI")]
     [Tooltip("Prefab for one top-row letter slot. Should be a UI circle with an Image and TMP text.")]
     public GameObject letterSlotPrefab;
