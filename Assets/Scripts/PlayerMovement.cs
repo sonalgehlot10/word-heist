@@ -27,6 +27,16 @@ public class PlayerMovement : MonoBehaviour
     private bool externalLaunchActive = false;
     private float externalLaunchEndTime = 0f;
 
+    [Header("Zipline")]
+    public float ziplineSpeed = 6f;
+    public float ziplineEndThreshold = 0.15f;
+
+    private Zipline ziplineInRange;
+    private bool isOnZipline = false;
+    private Vector2 ziplineDirection;
+    private Vector2 ziplineTarget;
+    private float normalGravity;
+
     void Awake()
     {
         gfAnalytics = FindObjectOfType<GoogleFormAnalytics>();
@@ -35,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        normalGravity = rb.gravityScale;
         // If respawnPosition not set in inspector, default to player's start position
         if (respawnPosition == Vector2.zero)
             respawnPosition = new Vector2(transform.position.x, transform.position.y);
@@ -52,6 +63,18 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (levelComplete) return;
+
+        if (isOnZipline)
+        {
+            transform.position += (Vector3)(ziplineDirection * ziplineSpeed * Time.deltaTime);
+
+            if (Vector2.Distance(transform.position, ziplineTarget) <= ziplineEndThreshold)
+            {
+                StopZipline();
+            }
+
+            return;
+        }
 
         moveInput = Input.GetAxisRaw("Horizontal");
 
@@ -130,8 +153,50 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void StartZipline()
+    {
+        if (ziplineInRange == null) return;
+
+        Vector2 start = ziplineInRange.GetStart();
+        Vector2 end = ziplineInRange.GetEnd();
+
+        float distToStart = Vector2.Distance(transform.position, start);
+        float distToEnd = Vector2.Distance(transform.position, end);
+
+        isOnZipline = true;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+
+        if (distToStart <= distToEnd)
+        {
+            transform.position = start;
+            ziplineDirection = (end - start).normalized;
+            ziplineTarget = end;
+        }
+        else
+        {
+            transform.position = end;
+            ziplineDirection = (start - end).normalized;
+            ziplineTarget = start;
+        }
+    }
+    private void StopZipline()
+    {
+        isOnZipline = false;
+        rb.gravityScale = normalGravity;
+        ziplineInRange = null;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Zipline zip = other.GetComponentInParent<Zipline>();
+        if (zip != null)
+        {
+            ziplineInRange = zip;
+            StartZipline();
+        }
+
         if (other.CompareTag("Spike"))
         {
             gfAnalytics.LogEvent("Death/Respawn", "Hit Spike");
@@ -161,6 +226,15 @@ public class PlayerMovement : MonoBehaviour
         if (other.CompareTag("Checkpoint"))
         {
             respawnPosition = new Vector2(other.transform.position.x, other.transform.position.y);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        Zipline zip = other.GetComponentInParent<Zipline>();
+        if (zip != null && ziplineInRange == zip && !isOnZipline)
+        {
+            ziplineInRange = null;
         }
     }
 
