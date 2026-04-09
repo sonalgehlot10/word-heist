@@ -9,6 +9,9 @@ public class CheckpointTracker : MonoBehaviour
     // Updated by CheckpointPortal when player passes through
     public int currentCheckpointIndex = 0;
 
+    [Tooltip("Set this per level e.g. 'Level1', 'Level2', 'Tutorial'")]
+    public string levelName = "Level1";
+
     private GoogleFormAnalytics gfAnalytics;
 
     void Awake()
@@ -22,6 +25,6 @@ public class CheckpointTracker : MonoBehaviour
     public void LogAttempt()
     {
         if (gfAnalytics == null) return;
-        gfAnalytics.LogEvent("Checkpoint/Attempt", "Checkpoint_" + currentCheckpointIndex);
+        gfAnalytics.LogEvent("Checkpoint/Attempt", levelName + "_Checkpoint_" + currentCheckpointIndex);
     }
 }
