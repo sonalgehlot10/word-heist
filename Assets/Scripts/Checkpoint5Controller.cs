@@ -94,6 +94,7 @@ public class Checkpoint5Controller : MonoBehaviour
         DisableCameraFollowers();
         TeleportPlayerToCheckpoint5();
         MoveCameraToCheckpoint5();
+        HidePlayer();
 
         if (checkpoint5BoardRoot != null)
             checkpoint5BoardRoot.SetActive(true);
@@ -122,6 +123,37 @@ public class Checkpoint5Controller : MonoBehaviour
 
         if (loseText != null)
             loseText.gameObject.SetActive(false);
+    }
+
+    private void HidePlayer()
+    {
+        GameObject playerObject = null;
+
+        if (playerMovement != null)
+            playerObject = playerMovement.gameObject;
+        else if (playerRb != null)
+            playerObject = playerRb.gameObject;
+
+        if (playerObject == null)
+        {
+            Debug.LogWarning("[Checkpoint5Controller] Could not find player object to hide.");
+            return;
+        }
+
+        foreach (Renderer renderer in playerObject.GetComponentsInChildren<Renderer>(true))
+            renderer.enabled = false;
+
+        foreach (Collider2D collider in playerObject.GetComponentsInChildren<Collider2D>(true))
+            collider.enabled = false;
+
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+
+        if (playerMovement != null)
+            playerMovement.enabled = false;
     }
 
     private void TeleportPlayerToCheckpoint5()
