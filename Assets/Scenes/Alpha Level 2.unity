@@ -720,7 +720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5805885248943866039, guid: 151a0b26833064b57abe9081562e955b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.0062332
+      value: 1.64
       objectReference: {fileID: 0}
     - target: {fileID: 5805885248943866039, guid: 151a0b26833064b57abe9081562e955b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2155,7 +2155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5805885248943866039, guid: 151a0b26833064b57abe9081562e955b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.208336
+      value: -6.34
       objectReference: {fileID: 0}
     - target: {fileID: 5805885248943866039, guid: 151a0b26833064b57abe9081562e955b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3612,7 +3612,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7216027878127110341, guid: 18e599979b56c455594fb966179d204f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.594307
+      value: -5.68
       objectReference: {fileID: 0}
     - target: {fileID: 7216027878127110341, guid: 18e599979b56c455594fb966179d204f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8839,7 +8839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1721493505729846711, guid: f346dacbe87ad4e318323c3ef3ee6f65, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.5501308
+      value: 3.05
       objectReference: {fileID: 0}
     - target: {fileID: 1721493505729846711, guid: f346dacbe87ad4e318323c3ef3ee6f65, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8873,6 +8873,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3113322964198192286, guid: f346dacbe87ad4e318323c3ef3ee6f65, type: 3}
+      propertyPath: bridgeToActivate
+      value: 
+      objectReference: {fileID: 993201821}
     - target: {fileID: 8890897561077729475, guid: f346dacbe87ad4e318323c3ef3ee6f65, type: 3}
       propertyPath: m_Name
       value: BridgePowerup_2
@@ -11896,7 +11900,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.11
+      value: -7.01
       objectReference: {fileID: 0}
     - target: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -12006,29 +12010,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2757fccca16b64eb28c69d092096d977, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnergyBar
-  energyBar: {fileID: 0}
   maxEnergy: 100
   drainPerUnit: 0.2
   verticalWeight: 0.4
   minMovementThreshold: 0.01
   axisDeadZone: 0.1
-  blockCount: 5
   barLocalOffset: {x: 0, y: 0.8, z: 0}
-  blockSize: {x: 0.18, y: 0.28}
-  blockSpacing: 0.05
-  healthyColor: {r: 0.2, g: 0.85, b: 0.25, a: 1}
-  warningColor: {r: 0.95, g: 0.9, b: 0.2, a: 1}
-  dangerColor: {r: 0.95, g: 0.2, b: 0.2, a: 1}
-  emptyColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.35}
-  activeBorderColor: {r: 1, g: 1, b: 1, a: 0.1}
-  emptyBorderColor: {r: 1, g: 1, b: 1, a: 0.6}
-  fillInset: {x: 0.03, y: 0.03}
+  barSize: {x: 140, y: 18}
+  worldScale: 0.01
+  borderThickness: 2
   backgroundColor: {r: 0, g: 0, b: 0, a: 0.35}
+  borderColor: {r: 1, g: 1, b: 1, a: 0.18}
   warningMessage: Energy draining!
   warningTextOffset: {x: 0, y: 0.42, z: 0}
   warningFontSize: 55
-  warningCharacterSize: 0.05
   flickerSpeed: 6
+  criticalEnergyThreshold: 0.15
+  warningBaseColor: {r: 1, g: 0.15, b: 0.15, a: 1}
+  warningFlashColor: {r: 1, g: 0.55, b: 0.55, a: 1}
 --- !u!1 &1782366400
 GameObject:
   m_ObjectHideFlags: 0
