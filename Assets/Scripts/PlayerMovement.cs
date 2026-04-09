@@ -216,6 +216,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.CompareTag("Spike"))
         {
             gfAnalytics.LogEvent("Death/Respawn", "Hit Spike");
+            CheckpointTracker.Instance?.LogAttempt();
             Respawn();
             return;
         }
@@ -262,6 +263,7 @@ public class PlayerMovement : MonoBehaviour
                 return;
                 
             gfAnalytics.LogEvent("Death/Respawn", "Caught by Guard");
+            CheckpointTracker.Instance?.LogAttempt();
             Respawn();
         }
     }

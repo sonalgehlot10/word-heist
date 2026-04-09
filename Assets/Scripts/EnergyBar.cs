@@ -305,6 +305,7 @@ public class EnergyBar : MonoBehaviour
     {
         if (gfAnalytics != null)
             gfAnalytics.LogEvent("Death/Respawn", "Energy Depleted");
+        CheckpointTracker.Instance?.LogAttempt();
 
         Debug.Log("Energy depleted! Game Over.");
         SceneManager.LoadScene("RetryScene");
