@@ -4781,7 +4781,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -266}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &614405710 stripped
@@ -5037,50 +5037,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25c6554fa5a694a46ae3fc1e8fe591b2, type: 3}
---- !u!1 &641791804
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 641791806}
-  - component: {fileID: 641791805}
-  m_Layer: 0
-  m_Name: CollectedLettersInventory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &641791805
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641791804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d119e1927ae794261a56b2eb873ab712, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CollectedLettersInventory
---- !u!4 &641791806
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641791804}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 464.9884, y: 315.2613, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &654570140
 GameObject:
   m_ObjectHideFlags: 0
@@ -6411,10 +6367,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efaaffa537aa2425486b4e4fc1b8784f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectedLettersInventory
-  targetWord: FIRE
+  targetWord: RUN
   wordFormationSceneName: WordFormationScene
   letterSlotPrefab: {fileID: 433179497397796872, guid: 14176532fb0ab4767975f2c3b52886d4, type: 3}
-  lettersContainer: {fileID: 0}
+  lettersContainer: {fileID: 1358579148}
   emptySlotColor: {r: 0.22, g: 0.22, b: 0.22, a: 1}
   correctSlotColor: {r: 0.33, g: 0.65, b: 0.31, a: 1}
   presentSlotColor: {r: 0.82, g: 0.72, b: 0.25, a: 1}
@@ -7084,7 +7040,7 @@ GameObject:
   m_Component:
   - component: {fileID: 885642197}
   m_Layer: 0
-  m_Name: Checkpoint 5
+  m_Name: Checkpoint 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7110,6 +7066,7 @@ Transform:
   - {fileID: 2112160152}
   - {fileID: 414720414}
   - {fileID: 1760387680}
+  - {fileID: 1924686579}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &894195515 stripped
@@ -10691,7 +10648,7 @@ Transform:
   m_GameObject: {fileID: 1391091813}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 7.06, y: 2.03, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12681,7 +12638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFreezeAbility
   useKey: 116
   freezeDuration: 5
-  freezeCountText: {fileID: 0}
+  freezeCountText: {fileID: 1924351523}
 --- !u!114 &1772548713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12695,7 +12652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBridgeAbility
   useKey: 98
-  bridgeCountText: {fileID: 0}
+  bridgeCountText: {fileID: 752717548}
 --- !u!114 &1772548719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13937,6 +13894,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1924351521}
   m_CullTransparentMesh: 1
+--- !u!1 &1924686578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1924686579}
+  m_Layer: 0
+  m_Name: Checkpoint5CameraAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1924686579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924686578}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 8.22, y: 2.8, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 885642197}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1928439129
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15066,7 +15054,7 @@ Transform:
   m_GameObject: {fileID: 2047018436}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.92, y: 37.01, z: 0}
+  m_LocalPosition: {x: 7.2, y: 4.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15806,5 +15794,4 @@ SceneRoots:
   - {fileID: 2065037892}
   - {fileID: 654570144}
   - {fileID: 1007047211}
-  - {fileID: 641791806}
   - {fileID: 685227849}
