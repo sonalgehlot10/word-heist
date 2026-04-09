@@ -242,6 +242,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Guard"))
         {
+             if (PlayerFreezeAbility.FreezeActive)
+                return;
+                
             gfAnalytics.LogEvent("Death/Respawn", "Caught by Guard");
             Respawn();
         }
