@@ -30,6 +30,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Zipline")]
     public float ziplineSpeed = 6f;
     public float ziplineEndThreshold = 0.15f;
+    private float lastZiplineExitTime = -1f;
+    private float ziplineCooldown = 0.3f;
 
     private Zipline ziplineInRange;
     private bool isOnZipline = false;
@@ -66,11 +68,19 @@ public class PlayerMovement : MonoBehaviour
 
         if (isOnZipline)
         {
-            transform.position += (Vector3)(ziplineDirection * ziplineSpeed * Time.deltaTime);
+            Vector2 currentPos = transform.position;
+            Vector2 nextPos = currentPos + ziplineDirection * ziplineSpeed * Time.deltaTime;
 
-            if (Vector2.Distance(transform.position, ziplineTarget) <= ziplineEndThreshold)
+            float remainingDist = Vector2.Distance(currentPos, ziplineTarget);
+
+            if (remainingDist <= ziplineEndThreshold)
             {
+                transform.position = ziplineTarget;
                 StopZipline();
+            }
+            else
+            {
+                transform.position = nextPos;
             }
 
             return;
@@ -155,6 +165,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartZipline()
     {
+        if (Time.time - lastZiplineExitTime < ziplineCooldown)
+            return;
         if (ziplineInRange == null) return;
 
         Vector2 start = ziplineInRange.GetStart();
@@ -185,11 +197,15 @@ public class PlayerMovement : MonoBehaviour
     {
         isOnZipline = false;
         rb.gravityScale = normalGravity;
+        rb.linearVelocity = Vector2.zero;
         ziplineInRange = null;
+        transform.position += Vector3.up * 0.1f;
+        lastZiplineExitTime = Time.time;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (isOnZipline) return;
         Zipline zip = other.GetComponentInParent<Zipline>();
         if (zip != null)
         {
