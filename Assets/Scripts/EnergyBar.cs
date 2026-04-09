@@ -1,13 +1,9 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class EnergyBar : MonoBehaviour
 {
-    [Header("Legacy UI")]
-    [Tooltip("Optional old slider UI. It will be hidden at runtime if assigned.")]
-    public Slider energyBar;
-
     [Header("Energy Settings")]
     public float maxEnergy = 100f;
     public float drainPerUnit = 0.2f;
@@ -17,72 +13,61 @@ public class EnergyBar : MonoBehaviour
     public float minMovementThreshold = 0.01f;
     public float axisDeadZone = 0.1f;
 
-    [Header("Block Bar")]
-    [Range(1, 12)] public int blockCount = 5;
-    public Vector3 barLocalOffset = new Vector3(0f, 0.2f, 0f);
-    public Vector2 blockSize = new Vector2(0.18f, 0.28f);
-    public float blockSpacing = 0.05f;
+    [Header("Bar Settings")]
+    public Vector3 barLocalOffset = new Vector3(0f, 1.2f, 0f);
+    public Vector2 barSize = new Vector2(140f, 18f);
+    public float worldScale = 0.01f;
+    public float borderThickness = 2f;
 
-    public Color healthyColor = new Color(0.20f, 0.85f, 0.25f, 1f);
-    public Color warningColor = new Color(0.95f, 0.90f, 0.20f, 1f);
-    public Color dangerColor = new Color(0.95f, 0.20f, 0.20f, 1f);
-
-    [Tooltip("Color for empty blocks.")]
-    public Color emptyColor = new Color(0.12f, 0.12f, 0.12f, 0.9f);
-
-    [Header("Borders")]
-    public Color activeBorderColor = new Color(1f, 1f, 1f, 0.10f);
-    public Color emptyBorderColor = new Color(1f, 1f, 1f, 0.60f);
-
-    [Tooltip("How much smaller the fill is compared to the border.")]
-    public Vector2 fillInset = new Vector2(0.03f, 0.03f);
-
+    [Header("Colors")]
     public Color backgroundColor = new Color(0f, 0f, 0f, 0.35f);
+    public Color borderColor = new Color(1f, 1f, 1f, 0.18f);
 
     [Header("Warning Text")]
     public string warningMessage = "Energy draining!";
     public Vector3 warningTextOffset = new Vector3(0f, 0.42f, 0f);
     public int warningFontSize = 55;
-    public float warningCharacterSize = 0.05f;
     public float flickerSpeed = 6f;
+    public float criticalEnergyThreshold = 0.15f;
+    public Color warningBaseColor = new Color(1f, 0.15f, 0.15f, 1f);
+    public Color warningFlashColor = new Color(1f, 0.55f, 0.55f, 1f);
 
     private float energy;
     private Vector2 lastPos;
     private Rigidbody2D rb;
     private GoogleFormAnalytics gfAnalytics;
 
-    private Transform blockBarRoot;
-    private SpriteRenderer[] blockRenderers;   // inner fill
-    private SpriteRenderer[] borderRenderers;   // outer border
+    private Transform barRoot;
+    private Canvas barCanvas;
+    private Slider slider;
+    private Image backgroundImage;
+    private Image borderImage;
+    private Image fillImage;
 
     private Sprite whiteSprite;
+    private Sprite gradientSprite;
 
-    private TextMesh warningText;
+    private TextMesh warningTextMesh;
     private float flickerTimer = 0f;
 
-    void Awake()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         gfAnalytics = FindObjectOfType<GoogleFormAnalytics>();
     }
 
-    void Start()
+    private void Start()
     {
         energy = maxEnergy;
-        lastPos = rb ? rb.position : (Vector2)transform.position;
+        lastPos = rb != null ? rb.position : (Vector2)transform.position;
 
-        if (energyBar != null)
-        {
-            energyBar.gameObject.SetActive(false);
-        }
-
-        BuildBlockBar();
-        RefreshBlockBar();
+        BuildEnergyBar();
+        RefreshBar();
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
-        Vector2 currentPos = rb ? rb.position : (Vector2)transform.position;
+        Vector2 currentPos = rb != null ? rb.position : (Vector2)transform.position;
 
         float dx = Mathf.Abs(currentPos.x - lastPos.x);
         float dy = Mathf.Abs(currentPos.y - lastPos.y);
@@ -108,8 +93,7 @@ public class EnergyBar : MonoBehaviour
         {
             energy -= movement * drainPerUnit;
             energy = Mathf.Clamp(energy, 0f, maxEnergy);
-
-            RefreshBlockBar();
+            RefreshBar();
 
             if (energy <= 0f)
                 GameOver();
@@ -117,106 +101,117 @@ public class EnergyBar : MonoBehaviour
 
         lastPos = currentPos;
 
-        if (blockBarRoot != null)
-        {
-            blockBarRoot.localPosition = barLocalOffset;
-        }
+        if (barRoot != null)
+            barRoot.localPosition = barLocalOffset;
 
         UpdateWarningFlicker();
     }
 
-    private void BuildBlockBar()
+    private void BuildEnergyBar()
     {
-        if (blockBarRoot != null)
+        if (barRoot != null)
             return;
 
-        blockBarRoot = new GameObject("EnergyBlockBar").transform;
-        blockBarRoot.SetParent(transform, false);
-        blockBarRoot.localPosition = barLocalOffset;
-        blockBarRoot.localRotation = Quaternion.identity;
-        blockBarRoot.localScale = Vector3.one;
-
         whiteSprite = CreateWhiteSprite();
+        gradientSprite = CreateGradientSprite();
 
-        // Background behind the blocks
-        GameObject background = new GameObject("Background");
-        background.transform.SetParent(blockBarRoot, false);
-        background.transform.localPosition = Vector3.zero;
-        background.transform.localScale = new Vector3(
-            (blockCount * blockSize.x) + ((blockCount - 1) * blockSpacing) + 0.12f,
-            blockSize.y + 0.10f,
-            1f
+        GameObject root = new GameObject(
+            "EnergyBarRoot",
+            typeof(RectTransform),
+            typeof(Canvas),
+            typeof(CanvasScaler),
+            typeof(GraphicRaycaster)
         );
 
-        var bgRenderer = background.AddComponent<SpriteRenderer>();
-        bgRenderer.sprite = whiteSprite;
-        bgRenderer.color = backgroundColor;
-        bgRenderer.sortingOrder = 0;
+        root.transform.SetParent(transform, false);
+        root.transform.localPosition = barLocalOffset;
+        root.transform.localRotation = Quaternion.identity;
+        root.transform.localScale = Vector3.one * worldScale;
 
-        blockRenderers = new SpriteRenderer[blockCount];
-        borderRenderers = new SpriteRenderer[blockCount];
+        barRoot = root.transform;
 
-        float totalWidth = (blockCount * blockSize.x) + ((blockCount - 1) * blockSpacing);
-        float startX = -totalWidth * 0.5f + (blockSize.x * 0.5f);
+        RectTransform rootRT = root.GetComponent<RectTransform>();
+        rootRT.sizeDelta = barSize;
 
-        for (int i = 0; i < blockCount; i++)
-        {
-            GameObject blockRoot = new GameObject($"Block_{i + 1}");
-            blockRoot.transform.SetParent(blockBarRoot, false);
-            blockRoot.transform.localPosition = new Vector3(startX + i * (blockSize.x + blockSpacing), 0f, 0f);
-            blockRoot.transform.localRotation = Quaternion.identity;
-            blockRoot.transform.localScale = Vector3.one;
+        barCanvas = root.GetComponent<Canvas>();
+        barCanvas.renderMode = RenderMode.WorldSpace;
+        barCanvas.worldCamera = Camera.main;
+        barCanvas.overrideSorting = true;
+        barCanvas.sortingOrder = 200;
 
-            // Border: same overall size for every block
-            GameObject border = new GameObject("Border");
-            border.transform.SetParent(blockRoot.transform, false);
-            border.transform.localPosition = Vector3.zero;
-            border.transform.localScale = new Vector3(blockSize.x, blockSize.y, 1f);
+        CanvasScaler scaler = root.GetComponent<CanvasScaler>();
+        scaler.dynamicPixelsPerUnit = 10f;
 
-            var borderRenderer = border.AddComponent<SpriteRenderer>();
-            borderRenderer.sprite = whiteSprite;
-            borderRenderer.color = emptyBorderColor;
-            borderRenderer.sortingOrder = 1;
-            borderRenderers[i] = borderRenderer;
+        // Border
+        GameObject border = new GameObject("Border", typeof(RectTransform), typeof(Image));
+        border.transform.SetParent(barRoot, false);
 
-            // Fill: slightly smaller so the border is visible, but all blocks keep the same outer size
-            GameObject fill = new GameObject("Fill");
-            fill.transform.SetParent(blockRoot.transform, false);
-            fill.transform.localPosition = Vector3.zero;
-            fill.transform.localScale = new Vector3(
-                Mathf.Max(0.01f, blockSize.x - fillInset.x),
-                Mathf.Max(0.01f, blockSize.y - fillInset.y),
-                1f
-            );
+        RectTransform borderRT = border.GetComponent<RectTransform>();
+        borderRT.anchorMin = Vector2.zero;
+        borderRT.anchorMax = Vector2.one;
+        borderRT.offsetMin = Vector2.zero;
+        borderRT.offsetMax = Vector2.zero;
 
-            var fillRenderer = fill.AddComponent<SpriteRenderer>();
-            fillRenderer.sprite = whiteSprite;
-            fillRenderer.color = healthyColor;
-            fillRenderer.sortingOrder = 2;
-            blockRenderers[i] = fillRenderer;
-        }
+        borderImage = border.GetComponent<Image>();
+        borderImage.sprite = whiteSprite;
+        borderImage.color = borderColor;
+        borderImage.type = Image.Type.Sliced;
 
-        GameObject textObj = new GameObject("EnergyWarningText");
-        textObj.transform.SetParent(blockBarRoot, false);
-        textObj.transform.localPosition = warningTextOffset;
-        textObj.transform.localRotation = Quaternion.identity;
-        textObj.transform.localScale = Vector3.one;
+        // Background
+        GameObject background = new GameObject("Background", typeof(RectTransform), typeof(Image));
+        background.transform.SetParent(barRoot, false);
 
-        warningText = textObj.AddComponent<TextMesh>();
-        warningText.text = warningMessage;
-        warningText.fontSize = warningFontSize;
-        warningText.characterSize = warningCharacterSize;
-        warningText.alignment = TextAlignment.Center;
-        warningText.anchor = TextAnchor.LowerCenter;
-        warningText.color = new Color(1f, 0.2f, 0.2f, 0f);
+        RectTransform backgroundRT = background.GetComponent<RectTransform>();
+        backgroundRT.anchorMin = Vector2.zero;
+        backgroundRT.anchorMax = Vector2.one;
+        backgroundRT.offsetMin = new Vector2(borderThickness, borderThickness);
+        backgroundRT.offsetMax = new Vector2(-borderThickness, -borderThickness);
 
-        var textRenderer = textObj.GetComponent<MeshRenderer>();
-        if (textRenderer != null)
-        {
-            textRenderer.sortingOrder = 3;
-        }
+        backgroundImage = background.GetComponent<Image>();
+        backgroundImage.sprite = whiteSprite;
+        backgroundImage.color = backgroundColor;
+        backgroundImage.type = Image.Type.Sliced;
 
-        warningText.gameObject.SetActive(false);
+        // Fill
+        GameObject fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+        fill.transform.SetParent(background.transform, false);
+
+        RectTransform fillRT = fill.GetComponent<RectTransform>();
+        fillRT.anchorMin = Vector2.zero;
+        fillRT.anchorMax = Vector2.one;
+        fillRT.offsetMin = Vector2.zero;
+        fillRT.offsetMax = Vector2.zero;
+
+        fillImage = fill.GetComponent<Image>();
+        fillImage.sprite = gradientSprite;
+        fillImage.color = Color.white;
+        fillImage.type = Image.Type.Filled;
+        fillImage.fillMethod = Image.FillMethod.Horizontal;
+        fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+        fillImage.fillAmount = 1f;
+
+        // Warning text as TextMesh so it remains visible in world space
+        GameObject warningObj = new GameObject("EnergyWarningText");
+        warningObj.transform.SetParent(barRoot, false);
+        warningObj.transform.localPosition = warningTextOffset;
+        warningObj.transform.localRotation = Quaternion.identity;
+
+        float inverseScale = worldScale > 0.0001f ? (1f / worldScale) : 100f;
+        warningObj.transform.localScale = Vector3.one * inverseScale;
+
+        warningTextMesh = warningObj.AddComponent<TextMesh>();
+        warningTextMesh.text = warningMessage;
+        warningTextMesh.fontSize = warningFontSize;
+        warningTextMesh.characterSize = 0.05f;
+        warningTextMesh.anchor = TextAnchor.MiddleCenter;
+        warningTextMesh.alignment = TextAlignment.Center;
+        warningTextMesh.color = new Color(warningBaseColor.r, warningBaseColor.g, warningBaseColor.b, 0f);
+
+        MeshRenderer mr = warningObj.GetComponent<MeshRenderer>();
+        if (mr != null)
+            mr.sortingOrder = 500;
+
+        warningObj.SetActive(false);
     }
 
     private Sprite CreateWhiteSprite()
@@ -228,78 +223,85 @@ public class EnergyBar : MonoBehaviour
         return Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
     }
 
-    private void RefreshBlockBar()
+    private Sprite CreateGradientSprite()
     {
-        if (blockRenderers == null || blockRenderers.Length == 0)
-            return;
+        const int width = 256;
+        const int height = 1;
 
-        float energyPerBlock = maxEnergy / blockCount;
-        int activeBlocks = Mathf.CeilToInt(energy / energyPerBlock);
-        activeBlocks = Mathf.Clamp(activeBlocks, 0, blockCount);
+        Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
 
-        bool isCritical = activeBlocks <= 1;
-
-        Color activeColor;
-        if (activeBlocks <= 1)
-            activeColor = dangerColor;
-        else if (activeBlocks <= 3)
-            activeColor = warningColor;
-        else
-            activeColor = healthyColor;
-
-        for (int i = 0; i < blockRenderers.Length; i++)
+        for (int x = 0; x < width; x++)
         {
-            bool active = i < activeBlocks;
+            float t = x / (float)(width - 1);
 
-            if (blockRenderers[i] != null)
+            Color c;
+            if (t < 0.5f)
             {
-                blockRenderers[i].color = active ? activeColor : emptyColor;
-                blockRenderers[i].enabled = true;
+                float localT = t / 0.5f;
+                c = Color.Lerp(Color.red, Color.yellow, localT);
+            }
+            else
+            {
+                float localT = (t - 0.5f) / 0.5f;
+                c = Color.Lerp(Color.yellow, Color.green, localT);
             }
 
-            if (borderRenderers != null && i < borderRenderers.Length && borderRenderers[i] != null)
-            {
-                borderRenderers[i].color = active ? activeBorderColor : emptyBorderColor;
-                borderRenderers[i].enabled = true;
-            }
+            texture.SetPixel(x, 0, c);
         }
 
-        if (warningText != null)
+        texture.Apply();
+        texture.hideFlags = HideFlags.HideAndDontSave;
+
+        return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private void RefreshBar()
+    {
+        float normalized = Mathf.Clamp01(energy / maxEnergy);
+
+        if (fillImage != null)
+            fillImage.fillAmount = normalized;
+
+        if (warningTextMesh != null)
         {
-            warningText.gameObject.SetActive(isCritical);
+            bool isCritical = normalized <= criticalEnergyThreshold;
+            warningTextMesh.gameObject.SetActive(isCritical);
+
             if (!isCritical)
             {
-                Color c = warningText.color;
+                Color c = warningTextMesh.color;
                 c.a = 0f;
-                warningText.color = c;
+                warningTextMesh.color = c;
             }
         }
     }
 
     private void UpdateWarningFlicker()
     {
-        if (warningText == null || !warningText.gameObject.activeSelf)
+        if (warningTextMesh == null || !warningTextMesh.gameObject.activeSelf)
+            return;
+
+        float normalized = Mathf.Clamp01(energy / maxEnergy);
+        if (normalized > criticalEnergyThreshold)
             return;
 
         flickerTimer += Time.deltaTime * flickerSpeed;
 
-        float alpha = Mathf.Abs(Mathf.Sin(flickerTimer));
-        Color c = warningText.color;
-        c.a = alpha;
-        warningText.color = c;
+        float pulse = Mathf.Abs(Mathf.Sin(flickerTimer));
+        Color c = Color.Lerp(warningBaseColor, warningFlashColor, pulse);
+        c.a = Mathf.Lerp(0.35f, 1f, pulse);
+        warningTextMesh.color = c;
     }
 
     public void RestoreEnergy(float amount)
     {
         energy = Mathf.Clamp(energy + amount, 0f, maxEnergy);
-
-        if (energyBar != null)
-            energyBar.value = energy / maxEnergy;
-
-        RefreshBlockBar();
+        RefreshBar();
     }
 
-    void GameOver()
+    private void GameOver()
     {
         if (gfAnalytics != null)
             gfAnalytics.LogEvent("Death/Respawn", "Energy Depleted");
