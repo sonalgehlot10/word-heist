@@ -21,6 +21,7 @@ public class PlayerFreezeAbility : MonoBehaviour
     private void Start()
     {
         playerCollider = GetComponent<Collider2D>();
+        RefreshFreezeUI(); 
     }
 
     private void Update()
