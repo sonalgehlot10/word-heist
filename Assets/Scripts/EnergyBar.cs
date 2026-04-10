@@ -23,32 +23,21 @@ public class EnergyBar : MonoBehaviour
     public Color backgroundColor = new Color(0f, 0f, 0f, 0.35f);
     public Color borderColor = new Color(1f, 1f, 1f, 0.18f);
 
-    [Header("Warning Text")]
-    public string warningMessage = "Energy draining!";
-    public Vector3 warningTextOffset = new Vector3(0f, 0.42f, 0f);
-    public int warningFontSize = 55;
-    public float flickerSpeed = 6f;
-    public float criticalEnergyThreshold = 0.15f;
-    public Color warningBaseColor = new Color(1f, 0.15f, 0.15f, 1f);
-    public Color warningFlashColor = new Color(1f, 0.55f, 0.55f, 1f);
-
     private float energy;
     private Vector2 lastPos;
     private Rigidbody2D rb;
     private GoogleFormAnalytics gfAnalytics;
 
-    private Transform barRoot;
+    private Transform energyRoot;
+    private Transform barVisualRoot;
+
     private Canvas barCanvas;
-    private Slider slider;
     private Image backgroundImage;
     private Image borderImage;
     private Image fillImage;
 
     private Sprite whiteSprite;
     private Sprite gradientSprite;
-
-    private TextMesh warningTextMesh;
-    private float flickerTimer = 0f;
 
     private void Awake()
     {
@@ -101,56 +90,61 @@ public class EnergyBar : MonoBehaviour
 
         lastPos = currentPos;
 
-        if (barRoot != null)
-            barRoot.localPosition = barLocalOffset;
-
-        UpdateWarningFlicker();
+        if (energyRoot != null)
+            energyRoot.localPosition = barLocalOffset;
     }
 
     public void SetVisible(bool visible)
     {
-        if (barRoot != null)
-            barRoot.gameObject.SetActive(visible);
+        if (energyRoot != null)
+            energyRoot.gameObject.SetActive(visible);
     }
 
     private void BuildEnergyBar()
     {
-        if (barRoot != null)
+        if (energyRoot != null)
             return;
 
         whiteSprite = CreateWhiteSprite();
         gradientSprite = CreateGradientSprite();
 
-        GameObject root = new GameObject(
-            "EnergyBarRoot",
+        GameObject root = new GameObject("EnergyBarRoot", typeof(RectTransform));
+        root.transform.SetParent(transform, false);
+        root.transform.localPosition = barLocalOffset;
+        root.transform.localRotation = Quaternion.identity;
+        root.transform.localScale = Vector3.one * worldScale;
+
+        energyRoot = root.transform;
+
+        GameObject barVisualObj = new GameObject(
+            "BarVisualRoot",
             typeof(RectTransform),
             typeof(Canvas),
             typeof(CanvasScaler),
             typeof(GraphicRaycaster)
         );
 
-        root.transform.SetParent(transform, false);
-        root.transform.localPosition = barLocalOffset;
-        root.transform.localRotation = Quaternion.identity;
-        root.transform.localScale = Vector3.one * worldScale;
+        barVisualObj.transform.SetParent(energyRoot, false);
+        barVisualObj.transform.localPosition = Vector3.zero;
+        barVisualObj.transform.localRotation = Quaternion.identity;
+        barVisualObj.transform.localScale = Vector3.one;
 
-        barRoot = root.transform;
+        barVisualRoot = barVisualObj.transform;
 
-        RectTransform rootRT = root.GetComponent<RectTransform>();
+        RectTransform rootRT = barVisualObj.GetComponent<RectTransform>();
         rootRT.sizeDelta = barSize;
 
-        barCanvas = root.GetComponent<Canvas>();
+        barCanvas = barVisualObj.GetComponent<Canvas>();
         barCanvas.renderMode = RenderMode.WorldSpace;
         barCanvas.worldCamera = Camera.main;
         barCanvas.overrideSorting = true;
         barCanvas.sortingOrder = 200;
 
-        CanvasScaler scaler = root.GetComponent<CanvasScaler>();
+        CanvasScaler scaler = barVisualObj.GetComponent<CanvasScaler>();
         scaler.dynamicPixelsPerUnit = 10f;
 
-        // Border
         GameObject border = new GameObject("Border", typeof(RectTransform), typeof(Image));
-        border.transform.SetParent(barRoot, false);
+        border.transform.SetParent(barVisualRoot, false);
 
         RectTransform borderRT = border.GetComponent<RectTransform>();
         borderRT.anchorMin = Vector2.zero;
@@ -163,9 +157,8 @@ public class EnergyBar : MonoBehaviour
         borderImage.color = borderColor;
         borderImage.type = Image.Type.Sliced;
 
-        // Background
         GameObject background = new GameObject("Background", typeof(RectTransform), typeof(Image));
-        background.transform.SetParent(barRoot, false);
+        background.transform.SetParent(barVisualRoot, false);
 
         RectTransform backgroundRT = background.GetComponent<RectTransform>();
         backgroundRT.anchorMin = Vector2.zero;
@@ -178,7 +171,6 @@ public class EnergyBar : MonoBehaviour
         backgroundImage.color = backgroundColor;
         backgroundImage.type = Image.Type.Sliced;
 
-        // Fill
         GameObject fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
         fill.transform.SetParent(background.transform, false);
 
@@ -195,29 +187,6 @@ public class EnergyBar : MonoBehaviour
         fillImage.fillMethod = Image.FillMethod.Horizontal;
         fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
         fillImage.fillAmount = 1f;
-
-        // Warning text as TextMesh so it remains visible in world space
-        GameObject warningObj = new GameObject("EnergyWarningText");
-        warningObj.transform.SetParent(barRoot, false);
-        warningObj.transform.localPosition = warningTextOffset;
-        warningObj.transform.localRotation = Quaternion.identity;
-
-        float inverseScale = worldScale > 0.0001f ? (1f / worldScale) : 100f;
-        warningObj.transform.localScale = Vector3.one * inverseScale;
-
-        warningTextMesh = warningObj.AddComponent<TextMesh>();
-        warningTextMesh.text = warningMessage;
-        warningTextMesh.fontSize = warningFontSize;
-        warningTextMesh.characterSize = 0.05f;
-        warningTextMesh.anchor = TextAnchor.MiddleCenter;
-        warningTextMesh.alignment = TextAlignment.Center;
-        warningTextMesh.color = new Color(warningBaseColor.r, warningBaseColor.g, warningBaseColor.b, 0f);
-
-        MeshRenderer mr = warningObj.GetComponent<MeshRenderer>();
-        if (mr != null)
-            mr.sortingOrder = 500;
-
-        warningObj.SetActive(false);
     }
 
     private Sprite CreateWhiteSprite()
@@ -269,36 +238,6 @@ public class EnergyBar : MonoBehaviour
 
         if (fillImage != null)
             fillImage.fillAmount = normalized;
-
-        if (warningTextMesh != null)
-        {
-            bool isCritical = normalized <= criticalEnergyThreshold;
-            warningTextMesh.gameObject.SetActive(isCritical);
-
-            if (!isCritical)
-            {
-                Color c = warningTextMesh.color;
-                c.a = 0f;
-                warningTextMesh.color = c;
-            }
-        }
-    }
-
-    private void UpdateWarningFlicker()
-    {
-        if (warningTextMesh == null || !warningTextMesh.gameObject.activeSelf)
-            return;
-
-        float normalized = Mathf.Clamp01(energy / maxEnergy);
-        if (normalized > criticalEnergyThreshold)
-            return;
-
-        flickerTimer += Time.deltaTime * flickerSpeed;
-
-        float pulse = Mathf.Abs(Mathf.Sin(flickerTimer));
-        Color c = Color.Lerp(warningBaseColor, warningFlashColor, pulse);
-        c.a = Mathf.Lerp(0.35f, 1f, pulse);
-        warningTextMesh.color = c;
     }
 
     public void RestoreEnergy(float amount)
@@ -311,8 +250,8 @@ public class EnergyBar : MonoBehaviour
     {
         if (gfAnalytics != null)
             gfAnalytics.LogEvent("Death/Respawn", "Energy Depleted");
-        CheckpointTracker.Instance?.LogAttempt();
 
+        CheckpointTracker.Instance?.LogAttempt();
         CheckpointTimeAnalytics.Instance?.CompleteLevel("game_over");
 
         Debug.Log("Energy depleted! Game Over.");
