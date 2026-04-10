@@ -204,6 +204,8 @@ public class CollectedLettersInventory : MonoBehaviour
                 am.ResetLevelAnalytics();
             }
 
+            CheckpointTimeAnalytics.Instance?.CompleteLevel("level_complete");
+
             Checkpoint5Controller controller = FindFirstObjectByType<Checkpoint5Controller>();
             if (controller != null)
             {

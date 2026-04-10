@@ -307,9 +307,12 @@ public class EnergyBar : MonoBehaviour
             gfAnalytics.LogEvent("Death/Respawn", "Energy Depleted");
         CheckpointTracker.Instance?.LogAttempt();
 
+        CheckpointTimeAnalytics.Instance?.CompleteLevel("game_over");
+
         Debug.Log("Energy depleted! Game Over.");
         SceneManager.LoadScene("RetryScene");
     }
+
     public float GetStaminaPercent()
     {
         return (energy / maxEnergy) * 100f;

@@ -29,6 +29,8 @@ public class CheckpointPortal : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(MoveCamera(cameraPosition));
 
+        CheckpointTimeAnalytics.Instance?.RecordCheckpointReached($"Checkpoint {nextCheckpointIndex}");
+
         // Track which checkpoint segment the player is now in
         if (CheckpointTracker.Instance != null)
             CheckpointTracker.Instance.currentCheckpointIndex = nextCheckpointIndex;

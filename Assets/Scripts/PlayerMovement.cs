@@ -254,9 +254,12 @@ public class PlayerMovement : MonoBehaviour
                 GameState.Instance.collectedLettersSnapshot = li.GetCollectedLetters();
             }
 
+            CheckpointTimeAnalytics.Instance?.CompleteLevel("level_complete");
+
             SceneManager.LoadScene(ExitSceneName);
             return;
         }
+
 
         // compatibility: if a plain checkpoint object with tag "Checkpoint" exists,
         // use its transform position as respawn (unchanged behavior)
