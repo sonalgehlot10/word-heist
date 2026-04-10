@@ -11,6 +11,7 @@ public class Checkpoint5Controller : MonoBehaviour
     [Header("Player")]
     [SerializeField] private Rigidbody2D playerRb;
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private EnergyBar energyBar;
 
     [Header("Camera")]
     [SerializeField] private Camera mainCamera;
@@ -54,6 +55,9 @@ public class Checkpoint5Controller : MonoBehaviour
 
         if (playerRb == null && playerMovement != null)
             playerRb = playerMovement.GetComponent<Rigidbody2D>();
+
+        if (energyBar == null)
+            energyBar = FindFirstObjectByType<EnergyBar>();
 
         if (mainCamera == null)
             mainCamera = Camera.main;
@@ -145,6 +149,9 @@ public class Checkpoint5Controller : MonoBehaviour
 
         foreach (Collider2D collider in playerObject.GetComponentsInChildren<Collider2D>(true))
             collider.enabled = false;
+
+        if (energyBar != null)
+            energyBar.SetVisible(false);
 
         if (playerRb != null)
         {

@@ -107,6 +107,12 @@ public class EnergyBar : MonoBehaviour
         UpdateWarningFlicker();
     }
 
+    public void SetVisible(bool visible)
+    {
+        if (barRoot != null)
+            barRoot.gameObject.SetActive(visible);
+    }
+
     private void BuildEnergyBar()
     {
         if (barRoot != null)
