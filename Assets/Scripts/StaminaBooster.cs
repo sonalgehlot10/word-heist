@@ -14,6 +14,8 @@ public class StaminaBooster : MonoBehaviour
             if (energy != null)
             {
                 energy.RestoreEnergy(restoreAmount);
+                AnalyticsManager.Instance?.IncrementReboost();
+                Debug.Log("AnalyticsManager: " + AnalyticsManager.Instance);
             }
 
             Destroy(gameObject);
