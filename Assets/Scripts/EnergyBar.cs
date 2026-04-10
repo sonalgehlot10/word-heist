@@ -310,4 +310,8 @@ public class EnergyBar : MonoBehaviour
         Debug.Log("Energy depleted! Game Over.");
         SceneManager.LoadScene("RetryScene");
     }
+    public float GetStaminaPercent()
+    {
+        return (energy / maxEnergy) * 100f;
+    }
 }

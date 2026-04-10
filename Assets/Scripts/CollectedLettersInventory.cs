@@ -184,6 +184,25 @@ public class CollectedLettersInventory : MonoBehaviour
             finalWord = GetCurrentWord();
 
             Debug.Log("Collected full word: " + finalWord);
+            //analytics
+            AnalyticsManager am = AnalyticsManager.Instance;
+            EnergyBar energyBar = FindFirstObjectByType<EnergyBar>();
+            GoogleFormAnalytics gf = FindFirstObjectByType<GoogleFormAnalytics>();
+
+            if (am != null && energyBar != null)
+            {
+                int reboosts = am.GetReboostCount();
+                float stamina = energyBar.GetStaminaPercent();
+
+                Debug.Log($"ANALYTIC → Reboosts: {reboosts}, Final Stamina: {stamina}");
+
+                gf?.LogEvent(
+                    "Reboost_vs_Stamina",
+                    $"Reboosts:{reboosts}, FinalStamina:{stamina}"
+                );
+
+                am.ResetLevelAnalytics();
+            }
 
             Checkpoint5Controller controller = FindFirstObjectByType<Checkpoint5Controller>();
             if (controller != null)

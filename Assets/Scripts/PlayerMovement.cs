@@ -223,6 +223,26 @@ public class PlayerMovement : MonoBehaviour
 
         if (other.CompareTag("Exit"))
         {
+            Debug.Log("EXIT TRIGGERED");
+            AnalyticsManager am = AnalyticsManager.Instance;
+            EnergyBar energyBar = FindObjectOfType<EnergyBar>();
+
+            if (am != null && energyBar != null)
+            {
+                int reboosts = am.GetReboostCount();
+                float stamina = energyBar.GetStaminaPercent();
+
+                Debug.Log($"ANALYTIC → Reboosts: {reboosts}, Final Stamina: {stamina}");
+
+                gfAnalytics.LogEvent(
+                    "Reboost_vs_Stamina",
+                    $"Reboosts:{reboosts}, FinalStamina:{stamina}"
+                );
+
+                // reset for next level
+                am.ResetLevelAnalytics();
+            }
+
             LetterInventory li = FindObjectOfType<LetterInventory>();
             if (li != null)
             {
