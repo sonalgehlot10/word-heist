@@ -198,7 +198,7 @@ public class CollectedLettersInventory : MonoBehaviour
 
                 gf?.LogEvent(
                     "Reboost_vs_Stamina",
-                    $"Reboosts:{reboosts}, FinalStamina:{stamina}"
+                    $"Level:{SceneManager.GetActiveScene().name}, Reboosts:{reboosts}, FinalStamina:{stamina}"
                 );
 
                 am.ResetLevelAnalytics();
