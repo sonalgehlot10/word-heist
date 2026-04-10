@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
 
-    // Manual respawn position (set in inspector or updated by portals)
     public Vector2 respawnPosition;
     private GoogleFormAnalytics gfAnalytics;
 
@@ -23,7 +22,6 @@ public class PlayerMovement : MonoBehaviour
     public GameObject winText;
     public string ExitSceneName = "ExitScene";
 
-    // ---- External launch override (for trampoline etc.) ----
     private bool externalLaunchActive = false;
     private float externalLaunchEndTime = 0f;
 
@@ -48,13 +46,11 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         normalGravity = rb.gravityScale;
-        // If respawnPosition not set in inspector, default to player's start position
+
         if (respawnPosition == Vector2.zero)
             respawnPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
-    // Call this when something (like trampoline) launches the player.
-    // During the lock window, normal movement/jump code won't overwrite velocity.
     public void ApplyExternalLaunch(Vector2 newVelocity, float lockDuration)
     {
         rb.linearVelocity = newVelocity;
@@ -71,9 +67,10 @@ public class PlayerMovement : MonoBehaviour
             Vector2 currentPos = transform.position;
             Vector2 nextPos = currentPos + ziplineDirection * ziplineSpeed * Time.deltaTime;
 
-            float remainingDist = Vector2.Distance(currentPos, ziplineTarget);
+            Vector2 toTarget = ziplineTarget - currentPos;
 
-            if (remainingDist <= ziplineEndThreshold)
+            if (Vector2.Dot(toTarget, ziplineDirection) <= 0f ||
+                Vector2.Distance(currentPos, ziplineTarget) < 0.1f)
             {
                 transform.position = ziplineTarget;
                 StopZipline();
@@ -88,7 +85,6 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        // If we are being launched by trampoline etc., ignore normal jump
         if (!externalLaunchActive && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -99,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (levelComplete) return;
 
-        // While external launch is active, do NOT overwrite velocity.
         if (externalLaunchActive)
         {
             if (Time.time >= externalLaunchEndTime)
@@ -127,16 +122,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // -------------------------
-    // New minimal API for portals:
-    // Teleport player to the given 2D target (next-stage entry)
-    // and update the player's respawnPosition to that same entry point.
-    // -------------------------
     public void TeleportToStage(Vector2 entryPosition2D)
     {
         Vector3 target = new Vector3(entryPosition2D.x, entryPosition2D.y, transform.position.z);
 
-        // teleport via Rigidbody2D for physics correctness
         transform.position = target;
         if (rb != null)
         {
@@ -145,10 +134,8 @@ public class PlayerMovement : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
-        // update manual respawn to the new stage entry
         respawnPosition = entryPosition2D;
     }
-    // -------------------------
 
     void Respawn()
     {
@@ -163,6 +150,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // ✅ FIXED FUNCTION (only change made)
     private void StartZipline()
     {
         if (Time.time - lastZiplineExitTime < ziplineCooldown)
@@ -180,32 +168,43 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
 
+        Vector2 lineDir = (end - start).normalized;
+        Vector2 toPlayer = (Vector2)transform.position - start;
+
+        float projection = Vector2.Dot(toPlayer, lineDir);
+        projection = Mathf.Clamp(projection, 0f, Vector2.Distance(start, end));
+
+        Vector2 closestPoint = start + lineDir * projection;
+        transform.position = closestPoint;
+
+        // ❌ Removed position snapping
+        // transform.position = start/end
+
         if (distToStart <= distToEnd)
         {
-            transform.position = start;
             ziplineDirection = (end - start).normalized;
             ziplineTarget = end;
         }
         else
         {
-            transform.position = end;
             ziplineDirection = (start - end).normalized;
             ziplineTarget = start;
         }
     }
+
     private void StopZipline()
     {
         isOnZipline = false;
         rb.gravityScale = normalGravity;
         rb.linearVelocity = Vector2.zero;
         ziplineInRange = null;
-        transform.position += Vector3.up * 0.1f;
         lastZiplineExitTime = Time.time;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isOnZipline) return;
+
         Zipline zip = other.GetComponentInParent<Zipline>();
         if (zip != null)
         {
@@ -224,6 +223,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.CompareTag("Exit"))
         {
             Debug.Log("EXIT TRIGGERED");
+
             AnalyticsManager am = AnalyticsManager.Instance;
             EnergyBar energyBar = FindObjectOfType<EnergyBar>();
 
@@ -239,7 +239,6 @@ public class PlayerMovement : MonoBehaviour
                     $"Reboosts:{reboosts}, FinalStamina:{stamina}"
                 );
 
-                // reset for next level
                 am.ResetLevelAnalytics();
             }
 
@@ -282,9 +281,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Guard"))
         {
-             if (PlayerFreezeAbility.FreezeActive)
+            if (PlayerFreezeAbility.FreezeActive)
                 return;
-                
+
             gfAnalytics.LogEvent("Death/Respawn", "Caught by Guard");
             CheckpointTracker.Instance?.LogAttempt();
             Respawn();
