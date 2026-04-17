@@ -83,7 +83,15 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        moveInput = Input.GetAxisRaw("Horizontal");
+        // moveInput = Input.GetAxisRaw("Horizontal");
+        if (!isOnZipline)
+        {
+            moveInput = Input.GetAxisRaw("Horizontal");
+        }
+        else
+        {
+            moveInput = 0f;
+        }
 
         if (!externalLaunchActive && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
@@ -107,7 +115,11 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        // rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        if (!isOnZipline)
+        {
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        }
     }
 
     void LateUpdate()
@@ -153,6 +165,9 @@ public class PlayerMovement : MonoBehaviour
     // ✅ FIXED FUNCTION (only change made)
     private void StartZipline()
     {
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         if (Time.time - lastZiplineExitTime < ziplineCooldown)
             return;
         if (ziplineInRange == null) return;
@@ -177,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         Vector2 closestPoint = start + lineDir * projection;
         transform.position = closestPoint;
 
-        // ❌ Removed position snapping
+        // Removed position snapping
         // transform.position = start/end
 
         if (distToStart <= distToEnd)
@@ -199,6 +214,7 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         ziplineInRange = null;
         lastZiplineExitTime = Time.time;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
