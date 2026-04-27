@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Checkpoint5Controller : MonoBehaviour
 {
@@ -34,6 +35,11 @@ public class Checkpoint5Controller : MonoBehaviour
     [SerializeField] private TMP_Text introText;
     [SerializeField] private TMP_Text winText;
     [SerializeField] private TMP_Text loseText;
+
+    [Header("Navigation Buttons")]
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button nextLevelButton;
+    [SerializeField] private string nextLevelSceneName = "";
 
     [TextArea(2, 3)]
     [SerializeField] private string introMessage = "Form the word to advance";
@@ -82,6 +88,8 @@ public class Checkpoint5Controller : MonoBehaviour
             loseText.text = loseMessage;
             loseText.gameObject.SetActive(false);
         }
+        if (mainMenuButton != null) mainMenuButton.gameObject.SetActive(false);
+        if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(false);
     }
 
     public void EnterCheckpoint5()
@@ -549,6 +557,8 @@ public class Checkpoint5Controller : MonoBehaviour
             winText.text = winMessage;
             winText.gameObject.SetActive(true);
         }
+        if (mainMenuButton != null) mainMenuButton.gameObject.SetActive(true);
+        if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(!string.IsNullOrEmpty(nextLevelSceneName));
     }
 
     public void ShowLoseText()
@@ -563,6 +573,17 @@ public class Checkpoint5Controller : MonoBehaviour
             loseText.text = loseMessage;
             loseText.gameObject.SetActive(true);
         }
+    }
+
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void GoToNextLevel()
+    {
+        if (!string.IsNullOrEmpty(nextLevelSceneName))
+            SceneManager.LoadScene(nextLevelSceneName);
     }
 
     public bool HasEnteredCheckpoint5 => hasEntered;
