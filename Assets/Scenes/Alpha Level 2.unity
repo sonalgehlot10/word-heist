@@ -1335,11 +1335,11 @@ Transform:
   m_GameObject: {fileID: 157738858}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 85, z: -10}
+  m_LocalPosition: {x: 7.3, y: 45, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1872960791}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &158011705
 PrefabInstance:
@@ -3071,7 +3071,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440329949}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
@@ -4775,7 +4775,7 @@ MonoBehaviour:
   checkpoint5CameraAnchor: {fileID: 157738859}
   cameraYOffset: 4
   cameraZ: -8
-  checkpoint5BoardRoot: {fileID: 440329949}
+  checkpoint5BoardRoot: {fileID: 592700185}
   checkpoint5LettersContainer: {fileID: 862329976}
   dragLayer: {fileID: 1698401788}
   draggableLetterPrefab: {fileID: 9146819723816754612, guid: 0b917566dbe4e4923b8fac870fdec121, type: 3}
@@ -13587,6 +13587,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 157738859}
   - {fileID: 2033958038}
   - {fileID: 350136542}
   - {fileID: 673828331}
@@ -15480,4 +15481,3 @@ SceneRoots:
   - {fileID: 2054951211}
   - {fileID: 608085182}
   - {fileID: 1716437845}
-  - {fileID: 157738859}
