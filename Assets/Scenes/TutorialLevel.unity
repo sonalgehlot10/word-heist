@@ -6516,6 +6516,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Platform2 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4476442421162348723, guid: 3e40eaaa13b894a3b9a2279fe83aaf08, type: 3}
+      propertyPath: m_UsedByEffector
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8855849624547911445, guid: 3e40eaaa13b894a3b9a2279fe83aaf08, type: 3}
       propertyPath: m_LocalScale.x
       value: 6.51
