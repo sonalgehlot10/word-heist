@@ -13087,6 +13087,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2912456495113847786, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 8e33c0b32a2454fb783d3c0df7530df9, type: 2}
+    - target: {fileID: 2912456495113847786, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
@@ -13104,11 +13108,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6808856898332527155, guid: 8882e615ec2084869bd3b02a1b55c1a2, type: 3}
       propertyPath: m_LocalPosition.x
