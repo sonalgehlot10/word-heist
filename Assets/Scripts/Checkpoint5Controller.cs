@@ -29,8 +29,13 @@ public class Checkpoint5Controller : MonoBehaviour
 
     [Header("Board Layout")]
     [SerializeField] private Vector2 lettersAreaAnchoredPosition = Vector2.zero;
-    [SerializeField] private float tileSpacing = 10f;
-    [SerializeField] private Vector2 tileSize = new Vector2(60f, 60f);
+    [SerializeField] private float tileSpacing = 34f;
+    [SerializeField] private Vector2 tileSize = new Vector2(48f, 48f);
+
+    [Header("Slot Guides")]
+    [SerializeField] private Transform checkpoint5SlotsContainer;
+    [SerializeField] private Color slotGuideColor = Color.white;
+    [SerializeField] private Vector2 slotGuidePadding = new Vector2(8f, 8f);
 
     [Header("Static Text UI")]
     [SerializeField] private TMP_Text introText;
@@ -91,6 +96,12 @@ public class Checkpoint5Controller : MonoBehaviour
         }
         if (mainMenuButton != null) mainMenuButton.gameObject.SetActive(false);
         if (nextLevelButton != null) nextLevelButton.gameObject.SetActive(false);
+        if (checkpoint5SlotsContainer == null && checkpoint5BoardRoot != null)
+        {
+            Transform foundSlots = checkpoint5BoardRoot.transform.Find("SlotsArea");
+            if (foundSlots != null)
+                checkpoint5SlotsContainer = foundSlots;
+        }
     }
 
     public void EnterCheckpoint5()
@@ -198,6 +209,32 @@ public class Checkpoint5Controller : MonoBehaviour
             Debug.LogWarning("[Checkpoint5Controller] No player movement or rigidbody found to teleport.");
         }
     }
+    
+    private void BuildSlotGuides(int count)
+    {
+        if (checkpoint5SlotsContainer == null)
+            return;
+
+        float slotWidth = tileSize.x + slotGuidePadding.x;
+        float totalWidth = count * slotWidth + (count - 1) * tileSpacing;
+        float startX = -(totalWidth - slotWidth) * 0.5f;
+
+        for (int i = 0; i < count; i++)
+        {
+            GameObject slotObj = new GameObject($"CP5SlotGuide_{i + 1}", typeof(RectTransform), typeof(Image));
+
+            slotObj.transform.SetParent(checkpoint5SlotsContainer, false);
+
+            RectTransform rt = slotObj.GetComponent<RectTransform>();
+            rt.sizeDelta = tileSize + slotGuidePadding;
+            rt.anchoredPosition = new Vector2(startX + i * (slotWidth + tileSpacing), 0f);
+            rt.localScale = Vector3.one;
+
+            Image img = slotObj.GetComponent<Image>();
+            img.color = new Color(1f, 1f, 1f, 0.6f);
+            img.raycastTarget = false;
+        }
+    }
 
     public void BuildCheckpoint5Board()
     {
@@ -221,11 +258,18 @@ public class Checkpoint5Controller : MonoBehaviour
 
         ApplyBoardLayout();
         ClearChildren(checkpoint5LettersContainer);
+        if (checkpoint5SlotsContainer != null)
+        {
+            checkpoint5SlotsContainer.gameObject.SetActive(true);
+            ClearChildren(checkpoint5SlotsContainer);
+        }
         tiles.Clear();
 
         char[] collectedLetters = CollectedLettersInventory.Instance.GetCollectedLettersInOrder();
         if (collectedLetters == null || collectedLetters.Length == 0)
             return;
+
+        BuildSlotGuides(collectedLetters.Length);
 
         for (int i = 0; i < collectedLetters.Length; i++)
         {
@@ -316,8 +360,9 @@ public class Checkpoint5Controller : MonoBehaviour
 
         tiles.Sort((a, b) => a.SlotIndex.CompareTo(b.SlotIndex));
 
-        float totalWidth = tiles.Count * tileSize.x + Mathf.Max(0, tiles.Count - 1) * tileSpacing;
-        float startX = -(totalWidth - tileSize.x) * 0.5f;
+        float slotWidth = tileSize.x + slotGuidePadding.x;
+        float totalWidth = tiles.Count * slotWidth + Mathf.Max(0, tiles.Count - 1) * tileSpacing;
+        float startX = -(totalWidth - slotWidth) * 0.5f;
 
         for (int i = 0; i < tiles.Count; i++)
         {
@@ -325,7 +370,12 @@ public class Checkpoint5Controller : MonoBehaviour
             if (tile == null)
                 continue;
 
-            tile.SnapToSlot(new Vector2(startX + i * (tileSize.x + tileSpacing), 0f), checkpoint5LettersContainer);
+            float slotCenterX = startX + i * (slotWidth + tileSpacing);
+
+            tile.SnapToSlot(
+                new Vector2(slotCenterX, 0f),
+                checkpoint5LettersContainer
+            );
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(checkpoint5LettersContainer as RectTransform);
@@ -334,6 +384,7 @@ public class Checkpoint5Controller : MonoBehaviour
     private void ApplyBoardLayout()
     {
         SetupBoardRoot();
+        SetupSlotsContainer();
         SetupLettersContainer();
         SetupDragLayer();
         HideLegacySlotsIfPresent();
@@ -415,12 +466,38 @@ public class Checkpoint5Controller : MonoBehaviour
 
     private void HideLegacySlotsIfPresent()
     {
-        if (checkpoint5BoardRoot == null)
+        // if (checkpoint5BoardRoot == null)
+        //     return;
+
+        // Transform slots = checkpoint5BoardRoot.transform.Find("SlotsArea");
+        // if (slots != null)
+        //     slots.gameObject.SetActive(false);
+        if (checkpoint5SlotsContainer != null)
+            checkpoint5SlotsContainer.gameObject.SetActive(true);
+    }
+
+    private void SetupSlotsContainer()
+    {
+        if (checkpoint5SlotsContainer == null)
             return;
 
-        Transform slots = checkpoint5BoardRoot.transform.Find("SlotsArea");
-        if (slots != null)
-            slots.gameObject.SetActive(false);
+        RectTransform rt = checkpoint5SlotsContainer as RectTransform;
+        if (rt != null)
+        {
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = lettersAreaAnchoredPosition;
+            rt.localScale = Vector3.one;
+        }
+
+        HorizontalLayoutGroup layout = checkpoint5SlotsContainer.GetComponent<HorizontalLayoutGroup>();
+        if (layout != null)
+            layout.enabled = false;
+
+        ContentSizeFitter fitter = checkpoint5SlotsContainer.GetComponent<ContentSizeFitter>();
+        if (fitter != null)
+            fitter.enabled = false;
     }
 
     private void ApplyTileSizing(GameObject obj)
