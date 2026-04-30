@@ -13,7 +13,7 @@ public class WordGameManager : MonoBehaviour
     public TMP_Text timerText;
 
     public string targetWord = "FIRE";
-    public float timeRemaining = 10f;
+    // public float timeRemaining = 10f;
     private readonly List<WordSlot> slots = new List<WordSlot>();
 
     private void Awake()
@@ -42,28 +42,28 @@ public class WordGameManager : MonoBehaviour
         }
 
         CheckWord();
-        StartCoroutine(Timer());
+        // StartCoroutine(Timer());
     }
 
-    private IEnumerator Timer()
-    {
-        while (timeRemaining > 0)
-        {
-            if (timerText != null)
-                timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
+    // private IEnumerator Timer()
+    // {
+    //     while (timeRemaining > 0)
+    //     {
+    //         if (timerText != null)
+    //             timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
 
-            timeRemaining -= Time.deltaTime;
-            yield return null;
+    //         timeRemaining -= Time.deltaTime;
+    //         yield return null;
 
-            if (IsCorrect())
-            {
-                SceneManager.LoadScene("VictoryScene");
-                yield break;
-            }
-        }
+    //         if (IsCorrect())
+    //         {
+    //             SceneManager.LoadScene("VictoryScene");
+    //             yield break;
+    //         }
+    //     }
 
-        SceneManager.LoadScene("RetryScene");
-    }
+    //     SceneManager.LoadScene("RetryScene");
+    // }
 
     public void CheckWord()
     {

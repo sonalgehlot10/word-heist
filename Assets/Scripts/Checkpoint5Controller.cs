@@ -8,6 +8,7 @@ public class Checkpoint5Controller : MonoBehaviour
 {
     [Header("Checkpoint 5 Spawn")]
     [SerializeField] private Transform checkpoint5Spawn;
+    [SerializeField] private Timer timer;
 
     [Header("Player")]
     [SerializeField] private Rigidbody2D playerRb;
@@ -94,6 +95,9 @@ public class Checkpoint5Controller : MonoBehaviour
 
     public void EnterCheckpoint5()
     {
+        if (timer != null)
+            timer.StartTimer();
+
         if (checkpoint5Spawn == null)
         {
             Debug.LogError("[Checkpoint5Controller] checkpoint5Spawn is not assigned.");
@@ -478,7 +482,7 @@ public class Checkpoint5Controller : MonoBehaviour
         return result;
     }
 
-    private bool IsWordSolved()
+    public bool IsWordSolved()
     {
         string targetWord = GetNormalizedTargetWord();
         if (string.IsNullOrEmpty(targetWord))
@@ -550,7 +554,12 @@ public class Checkpoint5Controller : MonoBehaviour
         if (endStateShown)
             return;
 
+        
+
         endStateShown = true;
+
+        if (timer != null)
+            timer.StopTimer();
 
         if (winText != null)
         {
@@ -573,6 +582,7 @@ public class Checkpoint5Controller : MonoBehaviour
             loseText.text = loseMessage;
             loseText.gameObject.SetActive(true);
         }
+        if (mainMenuButton != null) mainMenuButton.gameObject.SetActive(true);
     }
 
     public void GoToMainMenu()
