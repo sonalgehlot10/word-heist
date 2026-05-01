@@ -13,51 +13,64 @@ public class WordGameManager : MonoBehaviour
     public TMP_Text timerText;
 
     public string targetWord = "FIRE";
-    public float timeRemaining = 10f;
-    private List<WordSlot> slots = new List<WordSlot>();
+    // public float timeRemaining = 10f;
+    private readonly List<WordSlot> slots = new List<WordSlot>();
 
-    void Awake()
+    private void Awake()
     {
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
-        string word = WordData.Instance.collectedWord;
+        string word = targetWord;
+        if (CollectedLettersInventory.Instance != null && !string.IsNullOrWhiteSpace(CollectedLettersInventory.Instance.finalWord))
+            word = CollectedLettersInventory.Instance.finalWord;
 
-        foreach (char c in word)
+        if (slotsParent != null && slotPrefab != null && !string.IsNullOrEmpty(word))
         {
-            GameObject go = Instantiate(slotPrefab, slotsParent);
-            WordSlot slot = go.GetComponent<WordSlot>();
-            slot.Setup(c);
-            slots.Add(slot);
-        }
-
-        CheckWord();
-        StartCoroutine(Timer());
-    }
-
-    IEnumerator Timer()
-    {
-        while (timeRemaining > 0)
-        {
-            timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
-            timeRemaining -= Time.deltaTime;
-            yield return null;
-
-            if (IsCorrect())
+            foreach (char c in word)
             {
-                SceneManager.LoadScene("VictoryScene");
-                yield break;
+                GameObject go = Instantiate(slotPrefab, slotsParent);
+                WordSlot slot = go.GetComponent<WordSlot>();
+                if (slot != null)
+                {
+                    slot.Setup(c);
+                    slots.Add(slot);
+                }
             }
         }
 
-        SceneManager.LoadScene("RetryScene");
+        CheckWord();
+        // StartCoroutine(Timer());
     }
+
+    // private IEnumerator Timer()
+    // {
+    //     while (timeRemaining > 0)
+    //     {
+    //         if (timerText != null)
+    //             timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
+
+    //         timeRemaining -= Time.deltaTime;
+    //         yield return null;
+
+    //         if (IsCorrect())
+    //         {
+    //             SceneManager.LoadScene("VictoryScene");
+    //             yield break;
+    //         }
+    //     }
+
+    //     SceneManager.LoadScene("RetryScene");
+    // }
 
     public void CheckWord()
     {
-        for (int i = 0; i < slots.Count; i++)
+        if (slots.Count == 0)
+            return;
+
+        for (int i = 0; i < slots.Count && i < targetWord.Length; i++)
         {
             if (slots[i].GetLetter().ToString() == targetWord[i].ToString())
                 slots[i].SetGreen();
@@ -66,10 +79,13 @@ public class WordGameManager : MonoBehaviour
         }
     }
 
-    bool IsCorrect()
+    private bool IsCorrect()
     {
+        if (slots.Count == 0 || slots.Count != targetWord.Length)
+            return false;
+
         string current = "";
-        foreach (var s in slots)
+        foreach (WordSlot s in slots)
             current += s.GetLetter();
 
         return current == targetWord;

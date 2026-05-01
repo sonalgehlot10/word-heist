@@ -14,7 +14,7 @@ public class LetterPickup : MonoBehaviour
 
     public void SetLetter(char c)
     {
-        letter = char.ToUpper(c);
+        letter = char.ToUpperInvariant(c);
 
         if (tmp == null)
             tmp = GetComponentInChildren<TMP_Text>(true);
@@ -25,16 +25,16 @@ public class LetterPickup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"PICKUP: '{letter}'  int={(int)letter}  obj={gameObject.name}");
+        Debug.Log($"PICKUP: '{letter}' int={(int)letter} obj={gameObject.name}");
 
-        // Only the player should collect
-        if (!other.CompareTag("Player")) return;
+        if (!other.CompareTag("Player"))
+            return;
 
-        // Add to inventory (UI updates)
-        if (LetterInventory.Instance != null)
-            LetterInventory.Instance.AddLetter(letter, checkpointIndex);
+        if (CollectedLettersInventory.Instance != null)
+            CollectedLettersInventory.Instance.AddLetter(letter, checkpointIndex);
+        else
+            Debug.LogError("CollectedLettersInventory.Instance is NULL!");
 
-        // Remove letter tile from scene
         Destroy(gameObject);
     }
 }

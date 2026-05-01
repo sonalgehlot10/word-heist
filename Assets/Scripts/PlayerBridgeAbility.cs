@@ -1,32 +1,46 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerBridgeAbility : MonoBehaviour
 {
-    bool hasBridge = false;
-    BridgePlatform targetBridge;
-    public GameObject bridgeIcon;
+    [Header("Bridge Use")]
+    [SerializeField] private KeyCode useKey = KeyCode.B;
 
-    void Update()
+    [Header("HUD")]
+    [SerializeField] private TMP_Text bridgeCountText;
+
+    private readonly Queue<BridgePlatform> bridgeQueue = new Queue<BridgePlatform>();
+
+    private void Start()
     {
-        if (hasBridge && Input.GetKeyDown(KeyCode.B))
+        RefreshBridgeUI();
+    }
+
+    private void Update()
+    {
+        if (bridgeQueue.Count > 0 && Input.GetKeyDown(useKey))
         {
+            BridgePlatform targetBridge = bridgeQueue.Dequeue();
+
             if (targetBridge != null)
                 targetBridge.ActivateBridge();
 
-            hasBridge = false;
-            targetBridge = null;
-
-            if (bridgeIcon != null)
-                bridgeIcon.SetActive(false);
+            RefreshBridgeUI();
         }
     }
 
     public void CollectBridge(BridgePlatform bridge)
     {
-        hasBridge = true;
-        targetBridge = bridge;
+        if (bridge != null)
+            bridgeQueue.Enqueue(bridge);
 
-        if (bridgeIcon != null)
-            bridgeIcon.SetActive(true);
+        RefreshBridgeUI();
+    }
+
+    private void RefreshBridgeUI()
+    {
+        if (bridgeCountText != null)
+            bridgeCountText.text = bridgeQueue.Count.ToString();
     }
 }

@@ -9,6 +9,9 @@ public class CheckpointPortal : MonoBehaviour
     public Camera camera;
     public float cameraPosition = 9f; // Distance to move the camera up from the entry position
 
+    [Tooltip("Which checkpoint segment the player enters after passing through this portal")]
+    public int nextCheckpointIndex = 1;
+
     void Awake()
     {
         var col = GetComponent<Collider2D>();
@@ -25,6 +28,12 @@ public class CheckpointPortal : MonoBehaviour
         pm.TeleportToStage(entryPosition);
         StopAllCoroutines();
         StartCoroutine(MoveCamera(cameraPosition));
+
+        CheckpointTimeAnalytics.Instance?.RecordCheckpointReached($"Checkpoint {nextCheckpointIndex}");
+
+        // Track which checkpoint segment the player is now in
+        if (CheckpointTracker.Instance != null)
+            CheckpointTracker.Instance.currentCheckpointIndex = nextCheckpointIndex;
         // Add 9 to Y to keep the camera above the center of the screen.
         //camera.transform.position = new Vector3(camera.transform.position.x, entryPosition.y + 9f, camera.transform.position.z);
     }

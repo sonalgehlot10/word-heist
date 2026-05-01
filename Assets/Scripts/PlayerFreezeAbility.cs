@@ -1,24 +1,32 @@
-using UnityEngine;
 using System.Collections;
+using TMPro;
+using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerFreezeAbility : MonoBehaviour
 {
-    public bool hasFreeze = false;
-    public float freezeDuration = 5f;
+    [Header("Freeze Use")]
+    [SerializeField] private KeyCode useKey = KeyCode.T;
+    [SerializeField] private float freezeDuration = 5f;
+    public static bool FreezeActive { get; private set; }
+    private Collider2D[] frozenGuardColliders;
+    private Collider2D playerCollider;
 
-    public GameObject freezeIconUI;   // drag FreezeIcon here in Inspector
+    [Header("HUD")]
+    [SerializeField] private TMP_Text freezeCountText;
 
-    bool freezeActive = false;
+    private int freezeCount = 0;
+    private bool freezeActive = false;
 
-    void Start()
+    private void Start()
     {
-        if (freezeIconUI != null)
-            freezeIconUI.SetActive(false);
+        playerCollider = GetComponent<Collider2D>();
+        RefreshFreezeUI(); 
     }
 
-    void Update()
+    private void Update()
     {
-        if (hasFreeze && Input.GetKeyDown(KeyCode.T) && !freezeActive)
+        if (freezeCount > 0 && Input.GetKeyDown(useKey) && !freezeActive)
         {
             StartCoroutine(FreezeGuards());
         }
@@ -26,30 +34,54 @@ public class PlayerFreezeAbility : MonoBehaviour
 
     public void CollectFreeze()
     {
-        hasFreeze = true;
-
-        if (freezeIconUI != null)
-            freezeIconUI.SetActive(true);   // show icon when collected
+        freezeCount++;
+        RefreshFreezeUI();
     }
 
-    IEnumerator FreezeGuards()
+    private IEnumerator FreezeGuards()
     {
         freezeActive = true;
-        hasFreeze = false;
 
-        if (freezeIconUI != null)
-            freezeIconUI.SetActive(false);  // hide icon after using it
+        freezeCount--;
+        RefreshFreezeUI();
 
-        GuardPatrol[] guards = FindObjectsOfType<GuardPatrol>();
+        GuardPatrol[] guards = FindObjectsByType<GuardPatrol>(FindObjectsSortMode.None);
+
+        List<Collider2D> colliders = new List<Collider2D>();
 
         foreach (GuardPatrol guard in guards)
+        {
             guard.Freeze(true);
+
+            Collider2D guardCol = guard.GetComponent<Collider2D>();
+            if (guardCol != null && playerCollider != null)
+            {
+                Physics2D.IgnoreCollision(playerCollider, guardCol, true);
+                colliders.Add(guardCol);
+            }
+        }
 
         yield return new WaitForSeconds(freezeDuration);
 
         foreach (GuardPatrol guard in guards)
+        {
             guard.Freeze(false);
+        }
+
+        foreach (Collider2D guardCol in colliders)
+        {
+            if (guardCol != null && playerCollider != null)
+            {
+                Physics2D.IgnoreCollision(playerCollider, guardCol, false);
+            }
+        }
 
         freezeActive = false;
+    } 
+
+    private void RefreshFreezeUI()
+    {
+        if (freezeCountText != null)
+            freezeCountText.text = freezeCount.ToString();
     }
 }

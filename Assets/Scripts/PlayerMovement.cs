@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
 
-    // Manual respawn position (set in inspector or updated by portals)
     public Vector2 respawnPosition;
     private GoogleFormAnalytics gfAnalytics;
 
@@ -23,9 +22,20 @@ public class PlayerMovement : MonoBehaviour
     public GameObject winText;
     public string ExitSceneName = "ExitScene";
 
-    // ---- External launch override (for trampoline etc.) ----
     private bool externalLaunchActive = false;
     private float externalLaunchEndTime = 0f;
+
+    [Header("Zipline")]
+    public float ziplineSpeed = 6f;
+    public float ziplineEndThreshold = 0.15f;
+    private float lastZiplineExitTime = -1f;
+    private float ziplineCooldown = 0.3f;
+
+    private Zipline ziplineInRange;
+    private bool isOnZipline = false;
+    private Vector2 ziplineDirection;
+    private Vector2 ziplineTarget;
+    private float normalGravity;
 
     void Awake()
     {
@@ -35,13 +45,12 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        // If respawnPosition not set in inspector, default to player's start position
+        normalGravity = rb.gravityScale;
+
         if (respawnPosition == Vector2.zero)
             respawnPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
-    // Call this when something (like trampoline) launches the player.
-    // During the lock window, normal movement/jump code won't overwrite velocity.
     public void ApplyExternalLaunch(Vector2 newVelocity, float lockDuration)
     {
         rb.linearVelocity = newVelocity;
@@ -53,9 +62,37 @@ public class PlayerMovement : MonoBehaviour
     {
         if (levelComplete) return;
 
-        moveInput = Input.GetAxisRaw("Horizontal");
+        if (isOnZipline)
+        {
+            Vector2 currentPos = transform.position;
+            Vector2 nextPos = currentPos + ziplineDirection * ziplineSpeed * Time.deltaTime;
 
-        // If we are being launched by trampoline etc., ignore normal jump
+            Vector2 toTarget = ziplineTarget - currentPos;
+
+            if (Vector2.Dot(toTarget, ziplineDirection) <= 0f ||
+                Vector2.Distance(currentPos, ziplineTarget) < 0.1f)
+            {
+                transform.position = ziplineTarget;
+                StopZipline();
+            }
+            else
+            {
+                transform.position = nextPos;
+            }
+
+            return;
+        }
+
+        // moveInput = Input.GetAxisRaw("Horizontal");
+        if (!isOnZipline)
+        {
+            moveInput = Input.GetAxisRaw("Horizontal");
+        }
+        else
+        {
+            moveInput = 0f;
+        }
+
         if (!externalLaunchActive && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -66,7 +103,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (levelComplete) return;
 
-        // While external launch is active, do NOT overwrite velocity.
         if (externalLaunchActive)
         {
             if (Time.time >= externalLaunchEndTime)
@@ -79,7 +115,11 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        // rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        if (!isOnZipline)
+        {
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        }
     }
 
     void LateUpdate()
@@ -94,16 +134,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // -------------------------
-    // New minimal API for portals:
-    // Teleport player to the given 2D target (next-stage entry)
-    // and update the player's respawnPosition to that same entry point.
-    // -------------------------
     public void TeleportToStage(Vector2 entryPosition2D)
     {
         Vector3 target = new Vector3(entryPosition2D.x, entryPosition2D.y, transform.position.z);
 
-        // teleport via Rigidbody2D for physics correctness
         transform.position = target;
         if (rb != null)
         {
@@ -112,10 +146,8 @@ public class PlayerMovement : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
-        // update manual respawn to the new stage entry
         respawnPosition = entryPosition2D;
     }
-    // -------------------------
 
     void Respawn()
     {
@@ -130,17 +162,102 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // ✅ FIXED FUNCTION (only change made)
+    private void StartZipline()
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        if (Time.time - lastZiplineExitTime < ziplineCooldown)
+            return;
+        if (ziplineInRange == null) return;
+
+        Vector2 start = ziplineInRange.GetStart();
+        Vector2 end = ziplineInRange.GetEnd();
+
+        float distToStart = Vector2.Distance(transform.position, start);
+        float distToEnd = Vector2.Distance(transform.position, end);
+
+        isOnZipline = true;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+
+        Vector2 lineDir = (end - start).normalized;
+        Vector2 toPlayer = (Vector2)transform.position - start;
+
+        float projection = Vector2.Dot(toPlayer, lineDir);
+        projection = Mathf.Clamp(projection, 0f, Vector2.Distance(start, end));
+
+        Vector2 closestPoint = start + lineDir * projection;
+        transform.position = closestPoint;
+
+        // Removed position snapping
+        // transform.position = start/end
+
+        if (distToStart <= distToEnd)
+        {
+            ziplineDirection = (end - start).normalized;
+            ziplineTarget = end;
+        }
+        else
+        {
+            ziplineDirection = (start - end).normalized;
+            ziplineTarget = start;
+        }
+    }
+
+    private void StopZipline()
+    {
+        isOnZipline = false;
+        rb.gravityScale = normalGravity;
+        rb.linearVelocity = Vector2.zero;
+        ziplineInRange = null;
+        lastZiplineExitTime = Time.time;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (isOnZipline) return;
+
+        Zipline zip = other.GetComponentInParent<Zipline>();
+        if (zip != null)
+        {
+            ziplineInRange = zip;
+            StartZipline();
+        }
+
         if (other.CompareTag("Spike"))
         {
             gfAnalytics.LogEvent("Death/Respawn", "Hit Spike");
+            CheckpointTracker.Instance?.LogAttempt();
             Respawn();
             return;
         }
 
         if (other.CompareTag("Exit"))
         {
+            Debug.Log("EXIT TRIGGERED");
+
+            AnalyticsManager am = AnalyticsManager.Instance;
+            EnergyBar energyBar = FindObjectOfType<EnergyBar>();
+
+            if (am != null && energyBar != null)
+            {
+                int reboosts = am.GetReboostCount();
+                float stamina = energyBar.GetStaminaPercent();
+
+                Debug.Log($"ANALYTIC → Reboosts: {reboosts}, Final Stamina: {stamina}");
+
+                gfAnalytics.LogEvent(
+                    "Reboost_vs_Stamina",
+                    $"Reboosts:{reboosts}, FinalStamina:{stamina}"
+                );
+
+                am.ResetLevelAnalytics();
+            }
+
             LetterInventory li = FindObjectOfType<LetterInventory>();
             if (li != null)
             {
@@ -152,9 +269,12 @@ public class PlayerMovement : MonoBehaviour
                 GameState.Instance.collectedLettersSnapshot = li.GetCollectedLetters();
             }
 
+            CheckpointTimeAnalytics.Instance?.CompleteLevel("level_complete");
+
             SceneManager.LoadScene(ExitSceneName);
             return;
         }
+
 
         // compatibility: if a plain checkpoint object with tag "Checkpoint" exists,
         // use its transform position as respawn (unchanged behavior)
@@ -164,11 +284,24 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        Zipline zip = other.GetComponentInParent<Zipline>();
+        if (zip != null && ziplineInRange == zip && !isOnZipline)
+        {
+            ziplineInRange = null;
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Guard"))
         {
+            if (PlayerFreezeAbility.FreezeActive)
+                return;
+
             gfAnalytics.LogEvent("Death/Respawn", "Caught by Guard");
+            CheckpointTracker.Instance?.LogAttempt();
             Respawn();
         }
     }
