@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class CheckpointTracker : MonoBehaviour
@@ -25,4 +24,3 @@ public class CheckpointTracker : MonoBehaviour
         gfAnalytics.LogEvent("Checkpoint/Attempt", levelName + "_Checkpoint_" + currentCheckpointIndex);
     }
 }
-
