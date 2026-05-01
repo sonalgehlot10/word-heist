@@ -12,23 +12,27 @@ public class MenuController : MonoBehaviour
     [Header("Optional")]
     public TMP_Text subtitleText;
 
-    public void OnTutorialPressed()
+    
+    public void OnLevel2Pressed()
     {
-        SceneManager.LoadScene(tutorialSceneName);
+        SceneManager.LoadScene(level2SceneName);
     }
+    
 
     public void OnLevel1Pressed()
     {
         SceneManager.LoadScene(level1SceneName);
     }
 
-    public void OnLevel2Pressed()
+    public void OnTutorialPressed()
     {
-        SceneManager.LoadScene(level2SceneName);
+        SceneManager.LoadScene(tutorialSceneName);
     }
+    
 
     public void OnQuitPressed()
     {
         Application.Quit();
     }
+
 }

@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,7 +18,9 @@ public class MainMenuReturn : MonoBehaviour
     // Callable from a UI button
     public void GoToMainMenu()
     {
+        
         CheckpointTimeAnalytics.Instance?.CompleteLevel("level_exit");
         SceneManager.LoadScene(mainMenuSceneName);
+        
     }
 }

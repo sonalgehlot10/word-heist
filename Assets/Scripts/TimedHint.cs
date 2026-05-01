@@ -1,7 +1,5 @@
-using UnityEngine;
 
-// Attach this to the hint text GameObject.
-// It hides itself after displayDuration seconds whenever it is activated.
+using UnityEngine;
 public class TimedHint : MonoBehaviour
 {
     [Tooltip("How many seconds to stay visible before hiding")]

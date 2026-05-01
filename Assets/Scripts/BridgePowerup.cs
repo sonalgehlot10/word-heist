@@ -1,10 +1,12 @@
+
+
 using UnityEngine;
 
 public class BridgePowerup : MonoBehaviour
 {
     public BridgePlatform bridgeToActivate;
 
-    [Tooltip("Hint to show when player collects this powerup (e.g. 'Press B to Activate Bridge')")]
+
     public GameObject collectHint;
 
     void OnTriggerEnter2D(Collider2D other)
